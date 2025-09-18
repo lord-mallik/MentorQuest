@@ -5,6 +5,8 @@ import { AuthContext, useAuthProvider } from './hooks/useAuth';
 import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard';
 import AITutor from './pages/AITutor';
+import Quizzes from './pages/Quizzes';
+import Wellness from './pages/Wellness';
 import Auth from './pages/Auth';
 import './lib/i18n';
 
@@ -44,9 +46,9 @@ function AppContent() {
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/ai-tutor" element={<AITutor />} />
-                <Route path="/quizzes" element={<div>Quizzes (Coming Soon)</div>} />
+                <Route path="/quizzes" element={<Quizzes />} />
                 <Route path="/progress" element={<div>Progress (Coming Soon)</div>} />
-                <Route path="/wellness" element={<div>Wellness (Coming Soon)</div>} />
+                <Route path="/wellness" element={<Wellness />} />
                 <Route path="/leaderboard" element={<div>Leaderboard (Coming Soon)</div>} />
                 <Route path="/classroom" element={<div>Classroom (Coming Soon)</div>} />
                 <Route path="/content-generator" element={<div>Content Generator (Coming Soon)</div>} />
