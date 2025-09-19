@@ -15,14 +15,16 @@ import {
   Menu,
   X,
   LogOut,
-  Bell
+  Bell,
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useGameification } from '../../hooks/useGameification';
+import { toast } from 'sonner';
 
 const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { user, signOut } = useAuth();
+  const { user, signOut, connectionStatus } = useAuth();
   const { profile } = useGameification();
   const location = useLocation();
   const navigate = useNavigate();
@@ -49,10 +51,23 @@ const Navbar: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
+      setIsMobileMenuOpen(false);
       await signOut();
+      toast.success('Signed out successfully');
       navigate('/auth');
     } catch (error) {
       console.error('Error signing out:', error);
+      toast.error('Failed to sign out. Please try again.');
+    }
+  };
+
+  const handleLanguageChange = (language: string) => {
+    try {
+      i18n.changeLanguage(language);
+      toast.success(`Language changed to ${language.toUpperCase()}`);
+    } catch (error) {
+      console.error('Error changing language:', error);
+      toast.error('Failed to change language');
     }
   };
 
@@ -107,6 +122,14 @@ const Navbar: React.FC = () => {
 
             {/* Right Side */}
             <div className="flex items-center space-x-4">
+              {/* Connection Status Indicator */}
+              {!connectionStatus.connected && (
+                <div className="flex items-center space-x-1 text-yellow-600">
+                  <AlertCircle className="w-4 h-4" />
+                  <span className="text-xs">Offline</span>
+                </div>
+              )}
+              
               {/* XP and Level (Students only) */}
               {user?.role === 'student' && profile && (
                 <div className="flex items-center space-x-3">
@@ -138,7 +161,7 @@ const Navbar: React.FC = () => {
               {/* Language Selector */}
               <select
                 value={i18n.language}
-                onChange={(e) => i18n.changeLanguage(e.target.value)}
+                onChange={(e) => handleLanguageChange(e.target.value)}
                 className="text-sm border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="en">EN</option>
@@ -158,7 +181,7 @@ const Navbar: React.FC = () => {
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <span className="text-sm font-medium text-gray-700">
-                    {user?.full_name}
+                    {user?.full_name || 'User'}
                   </span>
                 </Link>
                 
@@ -172,6 +195,7 @@ const Navbar: React.FC = () => {
                 <button
                   onClick={handleSignOut}
                   className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Sign Out"
                 >
                   <LogOut className="w-5 h-5" />
                 </button>
@@ -195,6 +219,19 @@ const Navbar: React.FC = () => {
               </span>
             </Link>
 
+            <div className="flex items-center space-x-2">
+              {/* Connection Status for Mobile */}
+              {!connectionStatus.connected && (
+                <AlertCircle className="w-5 h-5 text-yellow-600" />
+              )}
+              
+              {/* XP Display for Mobile Students */}
+              {user?.role === 'student' && profile && (
+                <div className="text-xs text-gray-600">
+                  L{profile.level} • {profile.xp}XP
+                </div>
+              )}
+              
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -202,6 +239,7 @@ const Navbar: React.FC = () => {
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
+            </div>
           </div>
         </div>
 
@@ -235,6 +273,25 @@ const Navbar: React.FC = () => {
                 })}
                 
                 <hr className="my-4" />
+                
+                {/* Language Selector for Mobile */}
+                <div className="px-3 py-2">
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Language</label>
+                  <select
+                    value={i18n.language}
+                    onChange={(e) => {
+                      handleLanguageChange(e.target.value);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="hi">हिन्दी</option>
+                  </select>
+                </div>
                 
                 <Link
                   to="/profile"
