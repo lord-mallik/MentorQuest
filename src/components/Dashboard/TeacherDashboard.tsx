@@ -23,24 +23,24 @@ import LoadingSpinner from '../common/LoadingSpinner';
 
 const TeacherDashboard: React.FC = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { supabaseUser } = useAuth();
   const [classes, setClasses] = useState<ClassRoom[]>([]);
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
   const [analytics, setAnalytics] = useState<any>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (supabaseUser) {
       loadTeacherData();
     }
-  }, [user]);
+  }, [supabaseUser]);
 
   const loadTeacherData = async () => {
     try {
       setLoading(true);
       
       // Load real classes data
-      const classesData = await db.getClasses(user!.id);
+      const classesData = await db.getClasses(supabaseUser!.id);
       setClasses(classesData.map(cls => ({
         ...cls,
         students: cls.class_students?.map(cs => cs.users?.id).filter(Boolean) || []
@@ -50,7 +50,7 @@ const TeacherDashboard: React.FC = () => {
         {
           id: '1',
           class_id: classesData[0]?.id || '1',
-          teacher_id: user!.id,
+          teacher_id: supabaseUser!.id,
           title: 'Algebra Review Session',
           description: 'Review of quadratic equations',
           start_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
@@ -134,7 +134,7 @@ const TeacherDashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              Welcome back, {user?.full_name}! 👨‍🏫
+              Welcome back, {supabaseUser?.full_name}! 👨‍🏫
             </h1>
             <p className="text-primary-100 text-lg">
               Ready to inspire and educate your students today?

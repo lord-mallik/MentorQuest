@@ -1,11 +1,10 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User as SupabaseUser } from '@supabase/supabase-js';
-import { supabase, checkSupabaseConnection } from '../lib/supabase';
+import { supabase, checkSupabaseConnection, db } from '../lib/supabase';
 import { User } from '../types';
 import { toast } from 'sonner';
 
 interface AuthContextType {
-  user: User | null;
   supabaseUser: SupabaseUser | null;
   loading: boolean;
   connectionStatus: { connected: boolean; error: string | null };
@@ -13,7 +12,10 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string, role: 'student' | 'teacher') => Promise<void>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
-  refreshConnection: () => Promise<void>;
+  refreshConnection: () => Promise<{
+    connected: boolean;
+    error: any;
+}>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,7 +29,6 @@ export function useAuth() {
 }
 
 export function useAuthProvider() {
-  const [user, setUser] = useState<User | null>(null);
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState({ connected: false, error: null });
@@ -39,33 +40,21 @@ export function useAuthProvider() {
   };
 
   useEffect(() => {
-    refreshConnection();
-    
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSupabaseUser(session?.user ?? null);
+    (async () => {
+      refreshConnection();
+      // Get initial session
+      console.log("calling")
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log(session);
+      
       if (session?.user) {
+        setSupabaseUser(session?.user);
         loadUserProfile(session.user.id);
+        setLoading(false);
       } else {
         setLoading(false);
       }
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSupabaseUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await loadUserProfile(session.user.id);
-        } else {
-          setUser(null);
-          setLoading(false);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    })()
   }, []);
 
   const loadUserProfile = async (userId: string) => {
@@ -96,7 +85,8 @@ export function useAuthProvider() {
         return;
       }
 
-      setUser(data);
+        setSupabaseUser(data);
+
     } catch (error) {
       console.error('Error loading user profile:', error);
     } finally {
@@ -121,7 +111,7 @@ export function useAuthProvider() {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string, role: 'student' | 'teacher') => {
+  const signUp = async (email: string, password: string, fullName: string, role: 'student' | 'teacher' = 'student') => {
     try {
       setLoading(true);
       const { data, error } = await supabase.auth.signUp({
@@ -198,7 +188,8 @@ export function useAuthProvider() {
       if (error) throw error;
       
       // Clear local state
-      setUser(null);
+              setSupabaseUser(null);
+
       setSupabaseUser(null);
     } catch (error: any) {
       console.error('Sign out error:', error);
@@ -210,10 +201,10 @@ export function useAuthProvider() {
 
   const updateProfile = async (updates: Partial<User>) => {
     try {
-      if (!user) throw new Error('No user logged in');
+      if (!supabaseUser) throw new Error('No user logged in');
 
-      const updatedUser = await db.updateUser(user.id, updates);
-      setUser(updatedUser);
+      const updatedUser = await db.updateUser(supabaseUser.id, updates);
+      setSupabaseUser(updatedUser);
     } catch (error: any) {
       console.error('Update profile error:', error);
       throw new Error(error.message || 'Failed to update profile');
@@ -221,7 +212,6 @@ export function useAuthProvider() {
   };
 
   return {
-    user,
     supabaseUser,
     loading,
     connectionStatus,

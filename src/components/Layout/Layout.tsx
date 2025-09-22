@@ -1,15 +1,19 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Navbar from './Navbar';
 import { useAuth } from '../../hooks/useAuth';
 
 const Layout: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  if (!user) {
-    return <Outlet />;
-  }
+    useEffect(() => {
+      if (!user) {
+        navigate('/auth', { replace: true });
+        return;
+      }
+  },[])
 
   return (
     <div className="min-h-screen bg-gray-50">
