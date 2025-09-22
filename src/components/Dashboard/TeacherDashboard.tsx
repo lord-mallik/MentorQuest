@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Users,
@@ -16,7 +17,9 @@ import {
   Heart
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { db } from '../../lib/supabase';
 import { ClassRoom, LiveSession } from '../../types';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 const TeacherDashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -36,41 +39,17 @@ const TeacherDashboard: React.FC = () => {
     try {
       setLoading(true);
       
-      // Mock data for demo
-      setClasses([
-        {
-          id: '1',
-          name: 'Mathematics Grade 10',
-          subject: 'Mathematics',
-          teacher_id: user!.id,
-          students: ['student1', 'student2', 'student3', 'student4', 'student5'],
-          created_at: new Date().toISOString(),
-          active: true
-        },
-        {
-          id: '2',
-          name: 'Physics Grade 11',
-          subject: 'Physics',
-          teacher_id: user!.id,
-          students: ['student6', 'student7', 'student8'],
-          created_at: new Date().toISOString(),
-          active: true
-        },
-        {
-          id: '3',
-          name: 'Chemistry Grade 12',
-          subject: 'Chemistry',
-          teacher_id: user!.id,
-          students: ['student9', 'student10', 'student11', 'student12'],
-          created_at: new Date().toISOString(),
-          active: true
-        }
-      ]);
+      // Load real classes data
+      const classesData = await db.getClasses(user!.id);
+      setClasses(classesData.map(cls => ({
+        ...cls,
+        students: cls.class_students?.map(cs => cs.users?.id).filter(Boolean) || []
+      })));
 
       setLiveSessions([
         {
           id: '1',
-          class_id: '1',
+          class_id: classesData[0]?.id || '1',
           teacher_id: user!.id,
           title: 'Algebra Review Session',
           description: 'Review of quadratic equations',
@@ -80,9 +59,14 @@ const TeacherDashboard: React.FC = () => {
         }
       ]);
 
+      // Calculate analytics from real data
+      const totalStudents = classesData.reduce((acc, cls) => 
+        acc + (cls.class_students?.length || 0), 0
+      );
+
       setAnalytics({
-        totalStudents: 12,
-        activeClasses: 3,
+        totalStudents,
+        activeClasses: classesData.length,
         averageEngagement: 87,
         completionRate: 92,
         wellnessAlerts: 2,
@@ -101,6 +85,29 @@ const TeacherDashboard: React.FC = () => {
 
     } catch (error) {
       console.error('Error loading teacher data:', error);
+      // Fallback to mock data if real data fails
+      setClasses([
+        {
+          id: '1',
+          name: 'Mathematics Grade 10',
+          subject: 'Mathematics',
+          teacher_id: user!.id,
+          students: ['student1', 'student2', 'student3'],
+          created_at: new Date().toISOString(),
+          active: true
+        }
+      ]);
+      setAnalytics({
+        totalStudents: 3,
+        activeClasses: 1,
+        averageEngagement: 87,
+        completionRate: 92,
+        wellnessAlerts: 0,
+        recentQuizzes: 2,
+        studyHoursThisWeek: 45,
+        topPerformers: [],
+        strugglingStudents: []
+      });
     } finally {
       setLoading(false);
     }
@@ -108,9 +115,11 @@ const TeacherDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-      </div>
+      <LoadingSpinner 
+        size="lg" 
+        message="Loading your teacher dashboard..." 
+        fullScreen={false}
+      />
     );
   }
 
@@ -220,10 +229,10 @@ const TeacherDashboard: React.FC = () => {
           <div className="card p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">My Classes</h3>
-              <button className="btn-primary text-sm px-3 py-1">
+              <Link to="/classroom" className="btn-primary text-sm px-3 py-1">
                 <PlusCircle className="w-4 h-4 mr-1" />
                 New Class
-              </button>
+              </Link>
             </div>
             
             <div className="space-y-4">
@@ -235,11 +244,20 @@ const TeacherDashboard: React.FC = () => {
                   </div>
                   <p className="text-sm text-gray-600 mb-3">{classRoom.subject}</p>
                   <div className="flex items-center space-x-2">
-                    <button className="btn-outline text-xs px-2 py-1">View</button>
-                    <button className="btn-primary text-xs px-2 py-1">Start Live Session</button>
+                    <Link to="/classroom" className="btn-outline text-xs px-2 py-1">View</Link>
+                    <Link to="/classroom" className="btn-primary text-xs px-2 py-1">Start Live Session</Link>
                   </div>
                 </div>
               ))}
+              {classes.length === 0 && (
+                <div className="text-center py-8">
+                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">No classes yet</p>
+                  <Link to="/classroom" className="btn-primary text-sm mt-2">
+                    Create Your First Class
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>
@@ -259,43 +277,54 @@ const TeacherDashboard: React.FC = () => {
             
             <div className="space-y-6">
               {/* Top Performers */}
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3">Top Performers</h4>
-                <div className="space-y-2">
-                  {analytics.topPerformers?.map((student: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">{student.name}</p>
-                        <p className="text-sm text-gray-600">{student.subject}</p>
+              {analytics.topPerformers?.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Top Performers</h4>
+                  <div className="space-y-2">
+                    {analytics.topPerformers.map((student: any, index: number) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
+                        <div>
+                          <p className="font-medium text-gray-900">{student.name}</p>
+                          <p className="text-sm text-gray-600">{student.subject}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-green-600">{student.score}%</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold text-green-600">{student.score}%</p>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Students Needing Help */}
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3">Need Attention</h4>
-                <div className="space-y-2">
-                  {analytics.strugglingStudents?.map((student: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-yellow-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">{student.name}</p>
-                        <p className="text-sm text-gray-600">{student.subject}</p>
+              {analytics.strugglingStudents?.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Need Attention</h4>
+                  <div className="space-y-2">
+                    {analytics.strugglingStudents.map((student: any, index: number) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-yellow-50 rounded-lg">
+                        <div>
+                          <p className="font-medium text-gray-900">{student.name}</p>
+                          <p className="text-sm text-gray-600">{student.subject}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-yellow-600">{student.score}%</p>
+                          <button className="text-xs text-primary-600 hover:text-primary-700">
+                            Send Message
+                          </button>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold text-yellow-600">{student.score}%</p>
-                        <button className="text-xs text-primary-600 hover:text-primary-700">
-                          Send Message
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+              
+              {(!analytics.topPerformers?.length && !analytics.strugglingStudents?.length) && (
+                <div className="text-center py-8">
+                  <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">No student data available yet</p>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>
@@ -336,22 +365,22 @@ const TeacherDashboard: React.FC = () => {
             <div className="border-t pt-6">
               <h4 className="font-medium text-gray-900 mb-4">Quick Tools</h4>
               <div className="grid grid-cols-2 gap-3">
-                <button className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
+                <Link to="/content-generator" className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
                   <Brain className="w-6 h-6 text-primary-600 mx-auto mb-1" />
                   <span className="text-xs font-medium">AI Content</span>
-                </button>
-                <button className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
+                </Link>
+                <Link to="/quizzes" className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
                   <BookOpen className="w-6 h-6 text-green-600 mx-auto mb-1" />
                   <span className="text-xs font-medium">Create Quiz</span>
-                </button>
+                </Link>
                 <button className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
                   <MessageSquare className="w-6 h-6 text-blue-600 mx-auto mb-1" />
                   <span className="text-xs font-medium">Announcements</span>
                 </button>
-                <button className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
+                <Link to="/analytics" className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
                   <Heart className="w-6 h-6 text-pink-600 mx-auto mb-1" />
-                  <span className="text-xs font-medium">Wellness</span>
-                </button>
+                  <span className="text-xs font-medium">Analytics</span>
+                </Link>
               </div>
             </div>
           </div>

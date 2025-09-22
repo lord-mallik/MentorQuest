@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Brain,
@@ -18,13 +19,15 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import { useGameification } from '../../hooks/useGameification';
 import { ProgressData, DailyQuest } from '../../types';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 const StudentDashboard: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { profile, dailyQuests, addXP, completeQuest, updateStreak } = useGameification();
+  const { profile, dailyQuests, loading: gamificationLoading, completeQuest, updateStreak } = useGameification();
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [progressData, setProgressData] = useState<ProgressData[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -32,6 +35,12 @@ const StudentDashboard: React.FC = () => {
       loadDashboardData();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!gamificationLoading) {
+      setLoading(false);
+    }
+  }, [gamificationLoading]);
 
   const loadDashboardData = async () => {
     // Mock data for demo
@@ -115,11 +124,13 @@ const StudentDashboard: React.FC = () => {
     }
   };
 
-  if (!profile) {
+  if (loading || !profile) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-      </div>
+      <LoadingSpinner 
+        size="lg" 
+        message="Loading your dashboard..." 
+        fullScreen={false}
+      />
     );
   }
 
@@ -211,7 +222,9 @@ const StudentDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">{t('achievements')}</p>
-              <p className="text-2xl font-bold text-gray-900">{profile.achievements?.length || 0}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {Array.isArray(profile.achievements) ? profile.achievements.length : 0}
+              </p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
               <Trophy className="w-6 h-6 text-purple-600" />
@@ -380,7 +393,7 @@ const StudentDashboard: React.FC = () => {
         transition={{ delay: 0.8 }}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
       >
-        <button className="card p-6 hover:shadow-lg transition-shadow text-left group">
+        <Link to="/ai-tutor" className="card p-6 hover:shadow-lg transition-shadow text-left group">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
               <Brain className="w-6 h-6 text-blue-600" />
@@ -390,9 +403,9 @@ const StudentDashboard: React.FC = () => {
               <p className="text-sm text-gray-600">Get instant help</p>
             </div>
           </div>
-        </button>
+        </Link>
 
-        <button className="card p-6 hover:shadow-lg transition-shadow text-left group">
+        <Link to="/quizzes" className="card p-6 hover:shadow-lg transition-shadow text-left group">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
               <BookOpen className="w-6 h-6 text-green-600" />
@@ -402,9 +415,9 @@ const StudentDashboard: React.FC = () => {
               <p className="text-sm text-gray-600">Test your knowledge</p>
             </div>
           </div>
-        </button>
+        </Link>
 
-        <button className="card p-6 hover:shadow-lg transition-shadow text-left group">
+        <Link to="/wellness" className="card p-6 hover:shadow-lg transition-shadow text-left group">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center group-hover:bg-pink-200 transition-colors">
               <Heart className="w-6 h-6 text-pink-600" />
@@ -414,19 +427,19 @@ const StudentDashboard: React.FC = () => {
               <p className="text-sm text-gray-600">How are you feeling?</p>
             </div>
           </div>
-        </button>
+        </Link>
 
-        <button className="card p-6 hover:shadow-lg transition-shadow text-left group">
+        <Link to="/leaderboard" className="card p-6 hover:shadow-lg transition-shadow text-left group">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
               <Users className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900">Join Study Group</h4>
-              <p className="text-sm text-gray-600">Learn together</p>
+              <h4 className="font-semibold text-gray-900">Leaderboard</h4>
+              <p className="text-sm text-gray-600">See your ranking</p>
             </div>
           </div>
-        </button>
+        </Link>
       </motion.div>
     </div>
   );

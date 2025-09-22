@@ -1,37 +1,45 @@
 /*
-  # MentorQuest Database Schema
+  # MentorQuest Database Schema - Complete Setup
 
-  1. New Tables
-    - `users` - Main user table with authentication and profile data
+  1. Core Tables
+    - `users` - Main user authentication and profile data
     - `student_profiles` - Extended student data with gamification
     - `teacher_profiles` - Extended teacher data and verification
-    - `courses` - Course management for teachers
+    
+  2. Educational Content
+    - `courses` - Course management by teachers
     - `lessons` - Individual lessons within courses
-    - `quizzes` - Quiz management with metadata
+    - `quizzes` - Assessment creation and management
     - `quiz_questions` - Individual questions within quizzes
-    - `quiz_attempts` - Track student quiz performance
-    - `classes` - Teacher classroom management
-    - `class_students` - Many-to-many relationship for class enrollment
+    - `quiz_attempts` - Student quiz performance tracking
+    
+  3. Classroom Management
+    - `classes` - Virtual classrooms
+    - `class_students` - Student enrollment in classes
     - `live_sessions` - Real-time classroom sessions
-    - `achievements` - Available achievements in the system
-    - `student_achievements` - Track which achievements students have unlocked
+    
+  4. Gamification System
+    - `achievements` - Available achievements
+    - `student_achievements` - Unlocked achievements per student
     - `daily_quests` - Daily challenges for students
-    - `wellness_entries` - Daily wellness check-ins from students
-    - `study_sessions` - Track individual study sessions
-    - `ai_tutor_sessions` - Track AI tutor interactions
+    
+  5. Wellness & Analytics
+    - `wellness_entries` - Daily wellness check-ins
+    - `study_sessions` - Study time tracking
+    - `ai_tutor_sessions` - AI interaction history
     - `notifications` - User notification system
-
-  2. Security
-    - Enable RLS on all tables
-    - Add policies for user data access
-    - Ensure students can only access their own data
-    - Teachers can access their students' data
+    
+  6. Security & Performance
+    - Row Level Security (RLS) enabled on all tables
+    - Comprehensive indexes for query optimization
+    - Database functions for complex operations
 */
 
--- Enable UUID extension
+-- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Users table (main authentication and profile)
+-- Users table (core authentication and profile)
 CREATE TABLE IF NOT EXISTS users (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   email text UNIQUE NOT NULL,
@@ -59,7 +67,7 @@ CREATE TABLE IF NOT EXISTS student_profiles (
   xp integer DEFAULT 0,
   streak_days integer DEFAULT 0,
   last_activity timestamptz DEFAULT now(),
-  total_study_time integer DEFAULT 0,
+  total_study_time integer DEFAULT 0, -- in minutes
   achievements jsonb DEFAULT '[]'::jsonb,
   wellness_streak integer DEFAULT 0,
   created_at timestamptz DEFAULT now(),
@@ -116,7 +124,7 @@ CREATE TABLE IF NOT EXISTS quizzes (
   description text DEFAULT '',
   difficulty_level text CHECK (difficulty_level IN ('easy', 'medium', 'hard')) DEFAULT 'medium',
   subject text NOT NULL,
-  time_limit integer,
+  time_limit integer, -- in minutes
   max_attempts integer DEFAULT 3,
   active boolean DEFAULT true,
   created_at timestamptz DEFAULT now(),
@@ -148,12 +156,12 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
   percentage real GENERATED ALWAYS AS (
     CASE WHEN max_score > 0 THEN (score::real / max_score::real) * 100 ELSE 0 END
   ) STORED,
-  time_taken integer,
+  time_taken integer, -- in seconds
   completed_at timestamptz DEFAULT now(),
   xp_earned integer DEFAULT 0
 );
 
--- Classes
+-- Classes (virtual classrooms)
 CREATE TABLE IF NOT EXISTS classes (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   teacher_id uuid REFERENCES users(id) ON DELETE CASCADE,
@@ -166,7 +174,7 @@ CREATE TABLE IF NOT EXISTS classes (
   updated_at timestamptz DEFAULT now()
 );
 
--- Class students (many-to-many)
+-- Class student enrollment
 CREATE TABLE IF NOT EXISTS class_students (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   class_id uuid REFERENCES classes(id) ON DELETE CASCADE,
@@ -278,7 +286,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   created_at timestamptz DEFAULT now()
 );
 
--- Indexes for performance
+-- Create indexes for performance optimization
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_student_profiles_user_id ON student_profiles(user_id);
@@ -302,7 +310,7 @@ CREATE INDEX IF NOT EXISTS idx_wellness_entries_date ON wellness_entries(date);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read);
 
--- Enable Row Level Security
+-- Enable Row Level Security on all tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE student_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE teacher_profiles ENABLE ROW LEVEL SECURITY;
@@ -322,131 +330,261 @@ ALTER TABLE study_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ai_tutor_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies
+-- RLS Policies for users table
+CREATE POLICY "Users can read own data" ON users
+  FOR SELECT TO public
+  USING (auth.uid() = id);
 
--- Users policies
-CREATE POLICY "Users can read own data" ON users FOR SELECT TO authenticated USING (auth.uid() = id);
-CREATE POLICY "Users can update own data" ON users FOR UPDATE TO authenticated USING (auth.uid() = id);
+CREATE POLICY "Users can update own data" ON users
+  FOR UPDATE TO public
+  USING (auth.uid() = id);
 
--- Student profiles policies
-CREATE POLICY "Students can read own profile" ON student_profiles FOR SELECT TO authenticated USING (auth.uid() = user_id);
-CREATE POLICY "Students can update own profile" ON student_profiles FOR UPDATE TO authenticated USING (auth.uid() = user_id);
-CREATE POLICY "Teachers can read student profiles in their classes" ON student_profiles FOR SELECT TO authenticated USING (
-  EXISTS (
-    SELECT 1 FROM class_students cs
-    JOIN classes c ON c.id = cs.class_id
-    WHERE cs.student_id = student_profiles.user_id AND c.teacher_id = auth.uid()
-  )
-);
+-- RLS Policies for student_profiles
+CREATE POLICY "Students can read own profile" ON student_profiles
+  FOR SELECT TO public
+  USING (auth.uid() = user_id);
 
--- Teacher profiles policies
-CREATE POLICY "Teachers can read own profile" ON teacher_profiles FOR SELECT TO authenticated USING (auth.uid() = user_id);
-CREATE POLICY "Teachers can update own profile" ON teacher_profiles FOR UPDATE TO authenticated USING (auth.uid() = user_id);
-CREATE POLICY "Anyone can read verified teacher profiles" ON teacher_profiles FOR SELECT TO authenticated USING (verified = true);
+CREATE POLICY "Students can update own profile" ON student_profiles
+  FOR UPDATE TO public
+  USING (auth.uid() = user_id);
 
--- Courses policies
-CREATE POLICY "Teachers can manage own courses" ON courses FOR ALL TO authenticated USING (auth.uid() = teacher_id);
-CREATE POLICY "Students can read active courses" ON courses FOR SELECT TO authenticated USING (active = true);
-
--- Lessons policies
-CREATE POLICY "Teachers can manage lessons in own courses" ON lessons FOR ALL TO authenticated USING (
-  EXISTS (SELECT 1 FROM courses WHERE courses.id = lessons.course_id AND courses.teacher_id = auth.uid())
-);
-CREATE POLICY "Students can read lessons in enrolled courses" ON lessons FOR SELECT TO authenticated USING (
-  EXISTS (
-    SELECT 1 FROM courses c
-    JOIN class_students cs ON cs.class_id IN (
-      SELECT cl.id FROM classes cl WHERE cl.teacher_id = c.teacher_id
+CREATE POLICY "Teachers can read student profiles in their classes" ON student_profiles
+  FOR SELECT TO public
+  USING (
+    EXISTS (
+      SELECT 1 FROM class_students cs
+      JOIN classes c ON c.id = cs.class_id
+      WHERE cs.student_id = student_profiles.user_id
+      AND c.teacher_id = auth.uid()
     )
-    WHERE c.id = lessons.course_id AND cs.student_id = auth.uid()
-  )
-);
+  );
 
--- Quizzes policies
-CREATE POLICY "Teachers can manage own quizzes" ON quizzes FOR ALL TO authenticated USING (auth.uid() = teacher_id);
-CREATE POLICY "Students can read active quizzes" ON quizzes FOR SELECT TO authenticated USING (active = true);
+-- RLS Policies for teacher_profiles
+CREATE POLICY "Teachers can read own profile" ON teacher_profiles
+  FOR SELECT TO public
+  USING (auth.uid() = user_id);
 
--- Quiz questions policies
-CREATE POLICY "Teachers can manage questions in own quizzes" ON quiz_questions FOR ALL TO authenticated USING (
-  EXISTS (SELECT 1 FROM quizzes WHERE quizzes.id = quiz_questions.quiz_id AND quizzes.teacher_id = auth.uid())
-);
-CREATE POLICY "Students can read questions in active quizzes" ON quiz_questions FOR SELECT TO authenticated USING (
-  EXISTS (SELECT 1 FROM quizzes WHERE quizzes.id = quiz_questions.quiz_id AND quizzes.active = true)
-);
+CREATE POLICY "Teachers can update own profile" ON teacher_profiles
+  FOR UPDATE TO public
+  USING (auth.uid() = user_id);
 
--- Quiz attempts policies
-CREATE POLICY "Students can manage own quiz attempts" ON quiz_attempts FOR ALL TO authenticated USING (auth.uid() = student_id);
-CREATE POLICY "Teachers can read attempts for their quizzes" ON quiz_attempts FOR SELECT TO authenticated USING (
-  EXISTS (SELECT 1 FROM quizzes WHERE quizzes.id = quiz_attempts.quiz_id AND quizzes.teacher_id = auth.uid())
-);
+CREATE POLICY "Anyone can read verified teacher profiles" ON teacher_profiles
+  FOR SELECT TO public
+  USING (verified = true);
 
--- Classes policies
-CREATE POLICY "Teachers can manage own classes" ON classes FOR ALL TO authenticated USING (auth.uid() = teacher_id);
-CREATE POLICY "Students can read classes they're enrolled in" ON classes FOR SELECT TO authenticated USING (
-  EXISTS (SELECT 1 FROM class_students WHERE class_students.class_id = classes.id AND class_students.student_id = auth.uid())
-);
+-- RLS Policies for courses
+CREATE POLICY "Teachers can manage own courses" ON courses
+  FOR ALL TO public
+  USING (auth.uid() = teacher_id);
 
--- Class students policies
-CREATE POLICY "Students can read own class enrollments" ON class_students FOR SELECT TO authenticated USING (auth.uid() = student_id);
-CREATE POLICY "Teachers can manage students in own classes" ON class_students FOR ALL TO authenticated USING (
-  EXISTS (SELECT 1 FROM classes WHERE classes.id = class_students.class_id AND classes.teacher_id = auth.uid())
-);
+CREATE POLICY "Students can read active courses" ON courses
+  FOR SELECT TO public
+  USING (active = true);
 
--- Live sessions policies
-CREATE POLICY "Teachers can manage own live sessions" ON live_sessions FOR ALL TO authenticated USING (auth.uid() = teacher_id);
-CREATE POLICY "Students can read sessions in enrolled classes" ON live_sessions FOR SELECT TO authenticated USING (
-  EXISTS (SELECT 1 FROM class_students WHERE class_students.class_id = live_sessions.class_id AND class_students.student_id = auth.uid())
-);
+-- RLS Policies for lessons
+CREATE POLICY "Teachers can manage lessons in own courses" ON lessons
+  FOR ALL TO public
+  USING (
+    EXISTS (
+      SELECT 1 FROM courses
+      WHERE courses.id = lessons.course_id
+      AND courses.teacher_id = auth.uid()
+    )
+  );
 
--- Achievements policies
-CREATE POLICY "Anyone can read achievements" ON achievements FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Students can read lessons in enrolled courses" ON lessons
+  FOR SELECT TO public
+  USING (
+    EXISTS (
+      SELECT 1 FROM courses c
+      JOIN class_students cs ON cs.class_id IN (
+        SELECT cl.id FROM classes cl WHERE cl.teacher_id = c.teacher_id
+      )
+      WHERE c.id = lessons.course_id
+      AND cs.student_id = auth.uid()
+    )
+  );
 
--- Student achievements policies
-CREATE POLICY "Students can read own achievements" ON student_achievements FOR SELECT TO authenticated USING (auth.uid() = student_id);
-CREATE POLICY "System can insert achievements" ON student_achievements FOR INSERT TO authenticated WITH CHECK (true);
+-- RLS Policies for quizzes
+CREATE POLICY "Teachers can manage own quizzes" ON quizzes
+  FOR ALL TO public
+  USING (auth.uid() = teacher_id);
 
--- Daily quests policies
-CREATE POLICY "Students can manage own daily quests" ON daily_quests FOR ALL TO authenticated USING (auth.uid() = student_id);
+CREATE POLICY "Students can read active quizzes" ON quizzes
+  FOR SELECT TO public
+  USING (active = true);
 
--- Wellness entries policies
-CREATE POLICY "Students can manage own wellness data" ON wellness_entries FOR ALL TO authenticated USING (auth.uid() = student_id);
-CREATE POLICY "Teachers can read wellness data for their students" ON wellness_entries FOR SELECT TO authenticated USING (
-  EXISTS (
-    SELECT 1 FROM class_students cs
-    JOIN classes c ON c.id = cs.class_id
-    WHERE cs.student_id = wellness_entries.student_id AND c.teacher_id = auth.uid()
-  )
-);
+-- RLS Policies for quiz_questions
+CREATE POLICY "Teachers can manage questions in own quizzes" ON quiz_questions
+  FOR ALL TO public
+  USING (
+    EXISTS (
+      SELECT 1 FROM quizzes
+      WHERE quizzes.id = quiz_questions.quiz_id
+      AND quizzes.teacher_id = auth.uid()
+    )
+  );
 
--- Study sessions policies
-CREATE POLICY "Students can manage own study sessions" ON study_sessions FOR ALL TO authenticated USING (auth.uid() = student_id);
+CREATE POLICY "Students can read questions in active quizzes" ON quiz_questions
+  FOR SELECT TO public
+  USING (
+    EXISTS (
+      SELECT 1 FROM quizzes
+      WHERE quizzes.id = quiz_questions.quiz_id
+      AND quizzes.active = true
+    )
+  );
 
--- AI tutor sessions policies
-CREATE POLICY "Students can manage own AI tutor sessions" ON ai_tutor_sessions FOR ALL TO authenticated USING (auth.uid() = student_id);
+-- RLS Policies for quiz_attempts
+CREATE POLICY "Students can manage own quiz attempts" ON quiz_attempts
+  FOR ALL TO public
+  USING (auth.uid() = student_id);
 
--- Notifications policies
-CREATE POLICY "Users can read own notifications" ON notifications FOR SELECT TO authenticated USING (auth.uid() = user_id);
-CREATE POLICY "Users can update own notifications" ON notifications FOR UPDATE TO authenticated USING (auth.uid() = user_id);
+CREATE POLICY "Teachers can read attempts for their quizzes" ON quiz_attempts
+  FOR SELECT TO public
+  USING (
+    EXISTS (
+      SELECT 1 FROM quizzes
+      WHERE quizzes.id = quiz_attempts.quiz_id
+      AND quizzes.teacher_id = auth.uid()
+    )
+  );
 
--- Functions for gamification
+-- RLS Policies for classes
+CREATE POLICY "Teachers can manage own classes" ON classes
+  FOR ALL TO public
+  USING (auth.uid() = teacher_id);
+
+CREATE POLICY "Students can read classes they're enrolled in" ON classes
+  FOR SELECT TO public
+  USING (
+    EXISTS (
+      SELECT 1 FROM class_students
+      WHERE class_students.class_id = classes.id
+      AND class_students.student_id = auth.uid()
+    )
+  );
+
+-- RLS Policies for class_students
+CREATE POLICY "Teachers can manage students in own classes" ON class_students
+  FOR ALL TO public
+  USING (
+    EXISTS (
+      SELECT 1 FROM classes
+      WHERE classes.id = class_students.class_id
+      AND classes.teacher_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Students can read own class enrollments" ON class_students
+  FOR SELECT TO public
+  USING (auth.uid() = student_id);
+
+-- RLS Policies for live_sessions
+CREATE POLICY "Teachers can manage own live sessions" ON live_sessions
+  FOR ALL TO public
+  USING (auth.uid() = teacher_id);
+
+CREATE POLICY "Students can read sessions in enrolled classes" ON live_sessions
+  FOR SELECT TO public
+  USING (
+    EXISTS (
+      SELECT 1 FROM class_students
+      WHERE class_students.class_id = live_sessions.class_id
+      AND class_students.student_id = auth.uid()
+    )
+  );
+
+-- RLS Policies for achievements
+CREATE POLICY "Anyone can read achievements" ON achievements
+  FOR SELECT TO authenticated
+  USING (true);
+
+-- RLS Policies for student_achievements
+CREATE POLICY "Students can read own achievements" ON student_achievements
+  FOR SELECT TO public
+  USING (auth.uid() = student_id);
+
+CREATE POLICY "System can insert achievements" ON student_achievements
+  FOR INSERT TO public
+  WITH CHECK (true);
+
+-- RLS Policies for daily_quests
+CREATE POLICY "Students can manage own daily quests" ON daily_quests
+  FOR ALL TO public
+  USING (auth.uid() = student_id);
+
+-- RLS Policies for wellness_entries
+CREATE POLICY "Students can manage own wellness data" ON wellness_entries
+  FOR ALL TO public
+  USING (auth.uid() = student_id);
+
+CREATE POLICY "Teachers can read wellness data for their students" ON wellness_entries
+  FOR SELECT TO public
+  USING (
+    EXISTS (
+      SELECT 1 FROM class_students cs
+      JOIN classes c ON c.id = cs.class_id
+      WHERE cs.student_id = wellness_entries.student_id
+      AND c.teacher_id = auth.uid()
+    )
+  );
+
+-- RLS Policies for study_sessions
+CREATE POLICY "Students can manage own study sessions" ON study_sessions
+  FOR ALL TO public
+  USING (auth.uid() = student_id);
+
+-- RLS Policies for ai_tutor_sessions
+CREATE POLICY "Students can manage own AI tutor sessions" ON ai_tutor_sessions
+  FOR ALL TO public
+  USING (auth.uid() = student_id);
+
+-- RLS Policies for notifications
+CREATE POLICY "Users can read own notifications" ON notifications
+  FOR SELECT TO public
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own notifications" ON notifications
+  FOR UPDATE TO public
+  USING (auth.uid() = user_id);
+
+-- Database Functions
+
+-- Function to add XP to student and handle level progression
 CREATE OR REPLACE FUNCTION add_student_xp(student_user_id uuid, xp_amount integer)
 RETURNS student_profiles AS $$
 DECLARE
-  updated_profile student_profiles;
+  student_record student_profiles;
+  new_xp integer;
+  new_level integer;
 BEGIN
+  -- Get current student profile
+  SELECT * INTO student_record FROM student_profiles WHERE user_id = student_user_id;
+  
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Student profile not found for user_id: %', student_user_id;
+  END IF;
+  
+  -- Calculate new XP and level
+  new_xp := student_record.xp + xp_amount;
+  new_level := GREATEST(1, (new_xp / 1000) + 1);
+  
+  -- Update student profile
   UPDATE student_profiles 
   SET 
-    xp = xp + xp_amount,
-    level = GREATEST(1, FLOOR((xp + xp_amount) / 1000) + 1),
+    xp = new_xp,
+    level = new_level,
+    last_activity = now(),
     updated_at = now()
   WHERE user_id = student_user_id
-  RETURNING * INTO updated_profile;
+  RETURNING * INTO student_record;
   
-  RETURN updated_profile;
+  RETURN student_record;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to get leaderboard
+-- Function to get leaderboard data
 CREATE OR REPLACE FUNCTION get_leaderboard(class_id_param uuid DEFAULT NULL, time_frame text DEFAULT 'all')
 RETURNS TABLE (
   user_id uuid,
@@ -469,11 +607,52 @@ BEGIN
     sp.streak_days
   FROM users u
   JOIN student_profiles sp ON u.id = sp.user_id
-  WHERE u.role = 'student'
-    AND (class_id_param IS NULL OR u.id IN (
-      SELECT cs.student_id FROM class_students cs WHERE cs.class_id = class_id_param
-    ))
+  WHERE 
+    u.role = 'student'
+    AND (
+      class_id_param IS NULL 
+      OR u.id IN (
+        SELECT cs.student_id 
+        FROM class_students cs 
+        WHERE cs.class_id = class_id_param
+      )
+    )
+    AND (
+      time_frame = 'all'
+      OR (time_frame = 'weekly' AND sp.last_activity >= now() - interval '7 days')
+      OR (time_frame = 'monthly' AND sp.last_activity >= now() - interval '30 days')
+      OR (time_frame = 'daily' AND sp.last_activity >= now() - interval '1 day')
+    )
   ORDER BY sp.xp DESC
-  LIMIT 100;
+  LIMIT 50;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to join live session
+CREATE OR REPLACE FUNCTION join_live_session(session_id uuid, user_id uuid)
+RETURNS boolean AS $$
+DECLARE
+  session_record live_sessions;
+  participants_array jsonb;
+BEGIN
+  -- Get session record
+  SELECT * INTO session_record FROM live_sessions WHERE id = session_id;
+  
+  IF NOT FOUND THEN
+    RETURN false;
+  END IF;
+  
+  -- Add user to participants if not already present
+  participants_array := session_record.participants;
+  
+  IF NOT participants_array ? user_id::text THEN
+    participants_array := participants_array || jsonb_build_array(user_id);
+    
+    UPDATE live_sessions 
+    SET participants = participants_array
+    WHERE id = session_id;
+  END IF;
+  
+  RETURN true;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

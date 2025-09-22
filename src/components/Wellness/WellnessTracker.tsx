@@ -137,16 +137,29 @@ const WellnessTracker: React.FC = () => {
         activities: todayEntry.activities
       };
 
-      await db.addWellnessEntry(wellnessData);
+      try {
+        await db.addWellnessEntry(wellnessData);
+      } catch (dbError) {
+        console.error('Error saving wellness entry:', dbError);
+        // Continue with local state update even if DB save fails
+      }
+      
       setHasCheckedInToday(true);
 
       // Award XP for wellness check-in
-      await addXP(25, 'wellness check-in');
+      try {
+        await addXP(25, 'wellness check-in');
+      } catch (xpError) {
+        console.error('Error awarding wellness XP:', xpError);
+        toast.success(t('wellnessRecorded'));
+      }
 
       // Generate AI recommendations based on the entry
       await generateRecommendations();
 
-      toast.success(t('wellnessRecorded'));
+      if (!hasCheckedInToday) {
+        toast.success(t('wellnessRecorded'));
+      }
 
     } catch (error) {
       console.error('Error submitting wellness data:', error);

@@ -84,7 +84,13 @@ Explanation:`;
       };
     } catch (error) {
       console.error('Error generating tutor response:', error);
-      throw error;
+      // Return fallback response instead of throwing
+      return {
+        answer: this.getEnhancedFallbackResponse(question, subject, difficulty),
+        confidence: 0.5,
+        follow_up_questions: this.generateFollowUpQuestions(question, subject),
+        quiz_questions: this.getFallbackQuizQuestions(question, subject, difficulty)
+      };
     }
   }
 

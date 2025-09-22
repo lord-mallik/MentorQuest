@@ -27,8 +27,11 @@ export interface StudentProfile {
   streak_days: number;
   last_activity: string;
   total_study_time: number;
-  achievements: Achievement[];
-  wellness_data: WellnessData[];
+  achievements: any[];
+  wellness_streak: number;
+  created_at: string;
+  updated_at: string;
+  student_achievements?: any[];
 }
 
 export interface TeacherProfile {
@@ -36,8 +39,10 @@ export interface TeacherProfile {
   user_id: string;
   school: string;
   subjects: string[];
-  classes: ClassRoom[];
   verified: boolean;
+  bio: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ClassRoom {
@@ -45,9 +50,13 @@ export interface ClassRoom {
   name: string;
   subject: string;
   teacher_id: string;
-  students: string[];
-  created_at: string;
+  students: string[]; // Computed field
+  description: string;
+  class_code: string;
   active: boolean;
+  created_at: string;
+  updated_at: string;
+  class_students?: any[];
 }
 
 export interface Course {
