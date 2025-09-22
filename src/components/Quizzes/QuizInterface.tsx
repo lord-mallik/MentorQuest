@@ -188,7 +188,12 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
 
       // Save to database if real quiz
       if (quiz) {
-        await db.submitQuizAttempt(attempt);
+        try {
+          await db.submitQuizAttempt(attempt);
+        } catch (dbError) {
+          console.error('Error saving quiz attempt to database:', dbError);
+          // Continue with local processing even if DB save fails
+        }
       }
 
       // Calculate XP reward based on performance
@@ -199,7 +204,13 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
 
       // Award XP
       if (xpReward > 0) {
-        await addXP(xpReward, 'quiz completion');
+        try {
+          await addXP(xpReward, 'quiz completion');
+        } catch (xpError) {
+          console.error('Error awarding XP:', xpError);
+          // Show XP notification even if DB update fails
+          toast.success(`Quiz completed! Score: ${percentage.toFixed(1)}% (+${xpReward} XP)`);
+        }
       }
 
       // Set results
@@ -217,7 +228,9 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
       // Call completion callback
       onComplete?.(attempt);
 
-      toast.success(`Quiz completed! Score: ${percentage.toFixed(1)}% (+${xpReward} XP)`);
+      if (!xpReward || xpReward === 0) {
+        toast.success(`Quiz completed! Score: ${percentage.toFixed(1)}%`);
+      }
 
     } catch (error) {
       console.error('Error submitting quiz:', error);

@@ -33,9 +33,9 @@ export const checkSupabaseConnection = async () => {
       .from('users')
       .select('count')
       .limit(1)
-      .single();
+      .maybeSingle();
     
-    if (error && error.code !== 'PGRST116') {
+    if (error && !['PGRST116', 'PGRST118'].includes(error.code)) {
       throw error;
     }
     
@@ -92,8 +92,8 @@ export const db = {
         .from('student_profiles')
         .select(`
           *,
-          achievements:student_achievements(
-            achievement:achievements(*)
+          student_achievements(
+            achievements(*)
           )
         `)
         .eq('user_id', userId)
@@ -103,6 +103,10 @@ export const db = {
       return data;
     } catch (error: any) {
       console.error('Error fetching student profile:', error);
+      // If profile doesn't exist, return null instead of throwing
+      if (error.code === 'PGRST116') {
+        return null;
+      }
       throw new Error('Failed to fetch student profile');
     }
   },
@@ -144,7 +148,74 @@ export const db = {
       return data;
     } catch (error: any) {
       console.error('Error updating student XP:', error);
+      // Fallback to manual update if function fails
+      try {
+        const profile = await this.getStudentProfile(userId);
+        if (profile) {
+          const newXP = profile.xp + xpAmount;
+          const newLevel = Math.floor(newXP / 1000) + 1;
+          
+          const { data: updatedData, error: updateError } = await supabase
+            .from('student_profiles')
+            .update({
+              xp: newXP,
+              level: newLevel,
+              last_activity: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId)
+            .select()
+            .single();
+          
+          if (updateError) throw updateError;
+          return updatedData;
+        }
+      } catch (fallbackError) {
+        console.error('Fallback XP update failed:', fallbackError);
+      }
       throw new Error('Failed to update XP');
+    }
+  },
+
+  // Teacher profile operations
+  async getTeacherProfile(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('teacher_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+      if (error && error.code === 'PGRST116') {
+        return null;
+      }
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Error fetching teacher profile:', error);
+      throw new Error('Failed to fetch teacher profile');
+    }
+  },
+
+  async createTeacherProfile(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('teacher_profiles')
+        .insert({
+          user_id: userId,
+          school: '',
+          subjects: [],
+          verified: false,
+          bio: ''
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Error creating teacher profile:', error);
+      throw new Error('Failed to create teacher profile');
     }
   },
 
@@ -155,8 +226,8 @@ export const db = {
         .from('quizzes')
         .select(`
           *,
-          questions:quiz_questions(*),
-          teacher:users!quizzes_teacher_id_fkey(full_name)
+          quiz_questions(*),
+          teacher:users!teacher_id(full_name)
         `)
         .eq('active', true);
 
@@ -174,7 +245,7 @@ export const db = {
       return data || [];
     } catch (error: any) {
       console.error('Error fetching quizzes:', error);
-      throw new Error('Failed to fetch quizzes');
+      return [];
     }
   },
 
@@ -224,7 +295,7 @@ export const db = {
       return data || [];
     } catch (error: any) {
       console.error('Error fetching wellness entries:', error);
-      throw new Error('Failed to fetch wellness data');
+      return [];
     }
   },
 
@@ -241,7 +312,8 @@ export const db = {
       return data;
     } catch (error: any) {
       console.error('Error adding AI tutor session:', error);
-      throw new Error('Failed to save AI tutor session');
+      // Don't throw error for AI sessions, just log it
+      return null;
     }
   },
 
@@ -262,7 +334,8 @@ export const db = {
       return data;
     } catch (error: any) {
       console.error('Error unlocking achievement:', error);
-      throw new Error('Failed to unlock achievement');
+      // Don't throw for achievements, just log
+      return null;
     }
   },
 
@@ -321,8 +394,8 @@ export const db = {
         .from('courses')
         .select(`
           *,
-          lessons:lessons(count),
-          teacher:users!courses_teacher_id_fkey(full_name)
+          lessons(count),
+          teacher:users!teacher_id(full_name)
         `)
         .eq('active', true);
 
@@ -347,8 +420,8 @@ export const db = {
         .from('classes')
         .select(`
           *,
-          students:class_students(
-            student:users!class_students_student_id_fkey(id, full_name, avatar_url)
+          class_students(
+            users!student_id(id, full_name, avatar_url)
           )
         `)
         .eq('teacher_id', teacherId)
@@ -359,6 +432,80 @@ export const db = {
       return data || [];
     } catch (error: any) {
       console.error('Error fetching classes:', error);
+      return [];
+    }
+  },
+
+  // Daily quest operations
+  async getDailyQuests(studentId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('daily_quests')
+        .select('*')
+        .eq('student_id', studentId)
+        .gte('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      console.error('Error fetching daily quests:', error);
+      return [];
+    }
+  },
+
+  async completeQuest(questId: string, studentId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('daily_quests')
+        .update({ 
+          completed: true,
+          current_progress: supabase.raw('target_value')
+        })
+        .eq('id', questId)
+        .eq('student_id', studentId)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Error completing quest:', error);
+      throw new Error('Failed to complete quest');
+    }
+  },
+
+  // Achievement operations
+  async getAchievements() {
+    try {
+      const { data, error } = await supabase
+        .from('achievements')
+        .select('*')
+        .order('rarity', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      console.error('Error fetching achievements:', error);
+      return [];
+    }
+  },
+
+  async getStudentAchievements(studentId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('student_achievements')
+        .select(`
+          *,
+          achievements(*)
+        `)
+        .eq('student_id', studentId)
+        .order('unlocked_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      console.error('Error fetching student achievements:', error);
       return [];
     }
   }

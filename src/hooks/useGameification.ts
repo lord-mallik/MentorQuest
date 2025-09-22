@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
-import { supabase, db } from '../lib/supabase';
+import { db } from '../lib/supabase';
 import { Achievement, DailyQuest, StudentProfile } from '../types';
 import { toast } from 'sonner';
 
@@ -9,6 +9,7 @@ export function useGameification() {
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [dailyQuests, setDailyQuests] = useState<DailyQuest[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,31 +31,21 @@ export function useGameification() {
       
       // Load student profile
       try {
-        const profileData = await db.getStudentProfile(user.id);
+        let profileData = await db.getStudentProfile(user.id);
+        if (!profileData) {
+          // Create profile if it doesn't exist
+          profileData = await db.createStudentProfile(user.id);
+        }
         setProfile(profileData);
       } catch (profileError) {
         console.error('Error loading student profile:', profileError);
-        // Create profile if it doesn't exist
-        try {
-          const newProfile = await db.createStudentProfile(user.id);
-          setProfile(newProfile);
-        } catch (createError) {
-          console.error('Error creating student profile:', createError);
-          setError('Failed to load or create student profile');
-        }
+        setError('Failed to load student profile');
       }
 
       // Load daily quests
       try {
-        const { data: questsData, error: questsError } = await supabase
-          .from('daily_quests')
-          .select('*')
-          .eq('student_id', user.id)
-          .gte('expires_at', new Date().toISOString())
-          .order('created_at', { ascending: false });
-      
-        if (questsError) throw questsError;
-        setDailyQuests(questsData || []);
+        const questsData = await db.getDailyQuests(user.id);
+        setDailyQuests(questsData);
       } catch (questsError) {
         console.error('Error loading daily quests:', questsError);
         setDailyQuests([]);
@@ -62,16 +53,20 @@ export function useGameification() {
 
       // Load achievements
       try {
-        const { data: achievementsData, error: achievementsError } = await supabase
-          .from('achievements')
-          .select('*')
-          .order('rarity', { ascending: false });
-      
-        if (achievementsError) throw achievementsError;
-        setAchievements(achievementsData || []);
+        const achievementsData = await db.getAchievements();
+        setAchievements(achievementsData);
       } catch (achievementsError) {
         console.error('Error loading achievements:', achievementsError);
         setAchievements([]);
+      }
+
+      // Load unlocked achievements
+      try {
+        const unlockedData = await db.getStudentAchievements(user.id);
+        setUnlockedAchievements(unlockedData);
+      } catch (unlockedError) {
+        console.error('Error loading unlocked achievements:', unlockedError);
+        setUnlockedAchievements([]);
       }
 
     } catch (error) {
@@ -84,7 +79,8 @@ export function useGameification() {
 
   const addXP = async (amount: number, source: string = 'general') => {
     if (!user || !profile) {
-      throw new Error('User or profile not available');
+      console.warn('User or profile not available for XP addition');
+      return { xp: 0, level: 1, leveledUp: false };
     }
 
     try {
@@ -94,7 +90,17 @@ export function useGameification() {
 
       // Update XP in database
       const updatedProfile = await db.updateStudentXP(user.id, amount);
-      setProfile(updatedProfile);
+      if (updatedProfile) {
+        setProfile(updatedProfile);
+      } else {
+        // Fallback to local update
+        setProfile(prev => prev ? {
+          ...prev,
+          xp: newXP,
+          level: newLevel,
+          last_activity: new Date().toISOString()
+        } : null);
+      }
 
       // Show XP gain notification
       toast.success(`+${amount} XP earned from ${source}!`, {
@@ -116,7 +122,7 @@ export function useGameification() {
     } catch (error) {
       console.error('Error adding XP:', error);
       toast.error('Failed to add XP. Please try again.');
-      throw new Error('Failed to add XP');
+      return { xp: profile.xp, level: profile.level, leveledUp: false };
     }
   };
 
@@ -127,15 +133,11 @@ export function useGameification() {
 
     for (const achievement of achievements) {
       try {
-        // Check if already unlocked
-        const { data: existing } = await supabase
-          .from('student_achievements')
-          .select('id')
-          .eq('student_id', user.id)
-          .eq('achievement_id', achievement.id)
-          .single();
-
-        if (existing) continue;
+        // Check if already unlocked (from loaded data)
+        const alreadyUnlocked = unlockedAchievements.some(
+          ua => ua.achievement_id === achievement.id
+        );
+        if (alreadyUnlocked) continue;
 
         // Check achievement requirements
         let shouldUnlock = false;
@@ -176,15 +178,17 @@ export function useGameification() {
 
         if (shouldUnlock) {
           try {
-            await db.unlockAchievement(user.id, achievement.id);
-            unlockedAchievements.push(achievement);
-            
-            // Show achievement notification (don't add XP here to avoid recursion)
-            toast.success(`🏆 Achievement Unlocked: ${achievement.name}!`, {
-              description: achievement.description,
-              duration: 8000,
-              className: 'achievement-unlock'
-            });
+            const unlockedAchievement = await db.unlockAchievement(user.id, achievement.id);
+            if (unlockedAchievement) {
+              unlockedAchievements.push(achievement);
+              
+              // Show achievement notification (don't add XP here to avoid recursion)
+              toast.success(`🏆 Achievement Unlocked: ${achievement.name}!`, {
+                description: achievement.description,
+                duration: 8000,
+                className: 'achievement-unlock'
+              });
+            }
           } catch (unlockError) {
             console.error('Error unlocking achievement:', unlockError);
           }
@@ -199,34 +203,37 @@ export function useGameification() {
 
   const completeQuest = async (questId: string) => {
     if (!user) {
-      throw new Error('User not available');
+      console.warn('User not available for quest completion');
+      return;
     }
 
     try {
-      const { error } = await supabase
-        .from('daily_quests')
-        .update({ completed: true })
-        .eq('id', questId)
-        .eq('student_id', user?.id);
-
-      if (error) throw error;
-
       // Find the quest and add XP reward
       const quest = dailyQuests.find(q => q.id === questId);
-      if (quest) {
-        await addXP(quest.xp_reward, 'daily quest');
-        
-        // Update local state
-        setDailyQuests(prev => 
-          prev.map(q => q.id === questId ? { ...q, completed: true } : q)
-        );
-        
-        toast.success(`Quest completed! +${quest.xp_reward} XP`);
+      if (!quest) {
+        throw new Error('Quest not found');
       }
+
+      if (quest.completed) {
+        toast.info('Quest already completed!');
+        return;
+      }
+
+      // Complete quest in database
+      await db.completeQuest(questId, user.id);
+      
+      // Update local state
+      setDailyQuests(prev => 
+        prev.map(q => q.id === questId ? { ...q, completed: true } : q)
+      );
+      
+      // Award XP
+      await addXP(quest.xp_reward, 'daily quest');
+      
+      toast.success(`Quest completed! +${quest.xp_reward} XP`);
     } catch (error) {
       console.error('Error completing quest:', error);
       toast.error('Failed to complete quest. Please try again.');
-      throw new Error('Failed to complete quest');
     }
   };
 
@@ -252,30 +259,37 @@ export function useGameification() {
       }
 
       if (newStreakDays !== profile.streak_days) {
-        const { error } = await supabase
-          .from('student_profiles')
-          .update({ 
-            streak_days: newStreakDays,
-            last_activity: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id);
-
-        if (!error) {
-          setProfile(prev => prev ? { 
-            ...prev, 
-            streak_days: newStreakDays,
+        try {
+          const updatedProfile = await db.updateUser(user.id, {
             last_activity: new Date().toISOString()
-          } : null);
-
-          // Check for streak achievements
-          await checkAchievements({ streakDays: newStreakDays });
+          });
           
-          if (newStreakDays > profile.streak_days) {
-            toast.success(`🔥 ${newStreakDays} day streak!`);
+          // Update student profile streak
+          const { data, error } = await db.supabase
+            .from('student_profiles')
+            .update({ 
+              streak_days: newStreakDays,
+              last_activity: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id)
+            .select()
+            .single();
+
+          if (!error && data) {
+            setProfile(data);
+            
+            // Check for streak achievements
+            await checkAchievements({ streakDays: newStreakDays });
+            
+            if (newStreakDays > profile.streak_days) {
+              toast.success(`🔥 ${newStreakDays} day streak!`);
+            }
+          } else {
+            console.error('Error updating streak:', error);
           }
-        } else {
-          console.error('Error updating streak:', error);
+        } catch (updateError) {
+          console.error('Error updating streak:', updateError);
         }
       }
     } catch (error) {
@@ -299,28 +313,28 @@ export function useGameification() {
         {
           title: 'Study Session',
           description: 'Complete a 25-minute study session',
-          type: 'study_time' as const,
+          quest_type: 'study_time' as const,
           target_value: 25,
           xp_reward: 50
         },
         {
           title: 'Quiz Master',
           description: 'Complete 2 quizzes',
-          type: 'quiz_completion' as const,
+          quest_type: 'quiz_completion' as const,
           target_value: 2,
           xp_reward: 75
         },
         {
           title: 'Wellness Check',
           description: 'Complete your daily wellness check-in',
-          type: 'wellness_checkin' as const,
+          quest_type: 'wellness_checkin' as const,
           target_value: 1,
           xp_reward: 25
         },
         {
           title: 'Streak Keeper',
           description: 'Maintain your study streak',
-          type: 'streak' as const,
+          quest_type: 'streak' as const,
           target_value: 1,
           xp_reward: 30
         }
@@ -337,7 +351,7 @@ export function useGameification() {
           completed: false
         }));
 
-      const { data, error } = await supabase
+      const { data, error } = await db.supabase
         .from('daily_quests')
         .insert(selectedQuests)
         .select();
@@ -358,6 +372,7 @@ export function useGameification() {
     profile,
     dailyQuests,
     achievements,
+    unlockedAchievements,
     loading,
     error,
     addXP,

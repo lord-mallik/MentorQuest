@@ -73,7 +73,9 @@ export function useAuthProvider() {
       // Check connection first
       const status = await refreshConnection();
       if (!status.connected) {
-        throw new Error('Database connection failed');
+        console.warn('Database connection failed, using cached data');
+        setLoading(false);
+        return;
       }
       
       const { data, error } = await supabase
@@ -86,8 +88,11 @@ export function useAuthProvider() {
         if (error.code === 'PGRST116') {
           // User not found in profiles table, this might be expected for new users
           console.warn('User profile not found, user might need to complete setup');
+          setLoading(false);
+          return;
         }
         console.error('Error loading user profile:', error);
+        setLoading(false);
         return;
       }
 
@@ -101,6 +106,7 @@ export function useAuthProvider() {
 
   const signIn = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -110,11 +116,14 @@ export function useAuthProvider() {
     } catch (error: any) {
       console.error('Sign in error:', error);
       throw new Error(error.message || 'Failed to sign in');
+    } finally {
+      setLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string, fullName: string, role: 'student' | 'teacher') => {
     try {
+      setLoading(true);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -156,34 +165,15 @@ export function useAuthProvider() {
 
           // Create role-specific profile
           if (role === 'student') {
-            const { error: studentError } = await supabase
-              .from('student_profiles')
-              .insert({
-                user_id: data.user.id,
-                level: 1,
-                xp: 0,
-                streak_days: 0,
-                last_activity: new Date().toISOString(),
-                total_study_time: 0,
-                achievements: [],
-                wellness_streak: 0
-              });
-
-            if (studentError) {
+            try {
+              await db.createStudentProfile(data.user.id);
+            } catch (studentError) {
               console.error('Error creating student profile:', studentError);
             }
           } else if (role === 'teacher') {
-            const { error: teacherError } = await supabase
-              .from('teacher_profiles')
-              .insert({
-                user_id: data.user.id,
-                school: '',
-                subjects: [],
-                verified: false,
-                bio: ''
-              });
-
-            if (teacherError) {
+            try {
+              await db.createTeacherProfile(data.user.id);
+            } catch (teacherError) {
               console.error('Error creating teacher profile:', teacherError);
             }
           }
@@ -196,11 +186,14 @@ export function useAuthProvider() {
     } catch (error: any) {
       console.error('Sign up error:', error);
       throw new Error(error.message || 'Failed to create account');
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
@@ -210,6 +203,8 @@ export function useAuthProvider() {
     } catch (error: any) {
       console.error('Sign out error:', error);
       throw new Error(error.message || 'Failed to sign out');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -217,15 +212,8 @@ export function useAuthProvider() {
     try {
       if (!user) throw new Error('No user logged in');
 
-      const { data, error } = await supabase
-        .from('users')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', user.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      setUser(data);
+      const updatedUser = await db.updateUser(user.id, updates);
+      setUser(updatedUser);
     } catch (error: any) {
       console.error('Update profile error:', error);
       throw new Error(error.message || 'Failed to update profile');

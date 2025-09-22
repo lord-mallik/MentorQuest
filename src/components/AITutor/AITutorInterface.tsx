@@ -120,18 +120,23 @@ const AITutorInterface: React.FC = () => {
 
       // Save session to database
       if (user) {
-        await db.addAITutorSession({
-          student_id: user.id,
-          question: inputText,
-          answer: response.answer,
-          subject: selectedSubject,
-          difficulty_level: selectedDifficulty,
-          follow_up_questions: response.follow_up_questions,
-          created_at: new Date().toISOString()
-        });
+        try {
+          await db.addAITutorSession({
+            student_id: user.id,
+            question: inputText,
+            answer: response.answer,
+            subject: selectedSubject,
+            difficulty_level: selectedDifficulty,
+            follow_up_questions: response.follow_up_questions,
+            created_at: new Date().toISOString()
+          });
 
-        // Award XP for asking questions
-        await addXP(10, 'AI tutor question');
+          // Award XP for asking questions
+          await addXP(10, 'AI tutor question');
+        } catch (dbError) {
+          console.error('Error saving AI tutor session:', dbError);
+          // Continue without saving to DB
+        }
       }
 
       // Auto-speak response if enabled
