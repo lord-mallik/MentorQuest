@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen,
@@ -26,8 +26,8 @@ const Quizzes: React.FC = () => {
   const subjects = ['all', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'English', 'Science'];
   const difficulties = ['all', 'easy', 'medium', 'hard'];
 
-  // Mock quizzes for demonstration
-  const mockQuizzes: Quiz[] = [
+  // Mock quizzes for demonstration - wrapped in useMemo to prevent recreation on every render
+  const mockQuizzes: Quiz[] = useMemo(() => [
     {
       id: 'quiz-1',
       title: 'Basic Algebra',
@@ -119,7 +119,7 @@ const Quizzes: React.FC = () => {
       created_at: new Date().toISOString(),
       time_limit: 25
     }
-  ];
+  ], []);
 
   const loadQuizzes = useCallback(async () => {
     try {

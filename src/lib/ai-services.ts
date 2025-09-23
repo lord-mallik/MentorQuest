@@ -1,9 +1,49 @@
 // AI Services using free APIs only
-declare global { 
-  interface Window { 
-    webkitSpeechRecognition: typeof SpeechRecognition; 
-    SpeechRecognition: typeof SpeechRecognition; 
-  } 
+declare global {
+  interface Window {
+    webkitSpeechRecognition: typeof SpeechRecognition;
+    SpeechRecognition: typeof SpeechRecognition;
+  }
+
+  interface SpeechRecognitionEvent extends Event {
+    resultIndex: number;
+    results: SpeechRecognitionResultList;
+  }
+
+  interface SpeechRecognitionErrorEvent extends Event {
+    error: string;
+  }
+
+  interface SpeechRecognitionResultList {
+    readonly length: number;
+    item(index: number): SpeechRecognitionResult;
+    [index: number]: SpeechRecognitionResult;
+  }
+
+  interface SpeechRecognitionResult {
+    readonly length: number;
+    item(index: number): SpeechRecognitionAlternative;
+    [index: number]: SpeechRecognitionAlternative;
+    readonly isFinal: boolean;
+  }
+
+  interface SpeechRecognitionAlternative {
+    readonly transcript: string;
+    readonly confidence: number;
+  }
+}
+
+declare class SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  onstart: (() => void) | null;
 }
 const HUGGINGFACE_API_KEY = (import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_HUGGINGFACE_API_KEY || '';
 const HUGGINGFACE_API_URL = 'https://api-inference.huggingface.co/models';
@@ -292,12 +332,11 @@ Remember: Mastering difficult concepts takes time and persistence. You're on the
 
   async generateQuizQuestions(topic: string, subject: string, difficulty: string = 'medium', count: number = 3) {
     try {
-      console.error('Quiz generation error:', error);
       return this.getFallbackQuizQuestions(topic, subject, difficulty, count);
-  } catch {
-    console.error('Error generating quiz questions');
-    return this.getFallbackQuizQuestions(topic, subject, difficulty, count);
-  }
+    } catch {
+      console.error('Error generating quiz questions');
+      return this.getFallbackQuizQuestions(topic, subject, difficulty, count);
+    }
   }
 
   private getFallbackQuizQuestions(topic: string, subject: string, difficulty: string, count: number = 3) {
@@ -401,7 +440,7 @@ Remember: Mastering difficult concepts takes time and persistence. You're on the
                        sentiment.includes('negative') ? 'medium' : 'low'
         };
       }
-    } catch (error) {
+    } catch {
       console.warn('Sentiment analysis unavailable, using fallback');
     }
 
@@ -621,14 +660,14 @@ export const ttsService = new TextToSpeechService();
 
 // Speech-to-Text using Web Speech API (Free)
 export class SpeechToTextService {
-  private recognition: any;
+  private recognition: SpeechRecognition | null = null;
   private isListening = false;
 
   constructor() {
     if ('webkitSpeechRecognition' in window) {
-      this.recognition = new (window as any).webkitSpeechRecognition();
+      this.recognition = new (window as typeof globalThis & { webkitSpeechRecognition: typeof SpeechRecognition }).webkitSpeechRecognition();
     } else if ('SpeechRecognition' in window) {
-      this.recognition = new (window as any).SpeechRecognition();
+      this.recognition = new (window as typeof globalThis & { SpeechRecognition: typeof SpeechRecognition }).SpeechRecognition();
     }
 
     if (this.recognition) {
@@ -650,7 +689,7 @@ export class SpeechToTextService {
 
     this.recognition.lang = language;
     
-    this.recognition.onresult = (event: unknown) => {
+    this.recognition.onresult = (event: SpeechRecognitionEvent) => {
       let finalTranscript = '';
       let interimTranscript = '';
 
@@ -666,7 +705,7 @@ export class SpeechToTextService {
       onResult(finalTranscript || interimTranscript, !!finalTranscript);
     };
 
-    this.recognition.onerror = (event: unknown) => {
+    this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech recognition error:', event.error);
       onError?.(event.error);
       this.isListening = false;
