@@ -69,7 +69,7 @@ export function useGameification() {
     } finally {
       setLoading(false);
     }
-  });
+  }, [supabaseUser]);
 
   const checkAchievements = async (stats: {
     level?: number;
