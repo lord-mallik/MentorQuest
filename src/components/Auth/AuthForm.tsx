@@ -12,10 +12,10 @@ const AuthForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    fullName: '',
+    email: 'student@demo.com',
+    password: 'password123',
+    confirmPassword: 'password123',
+    fullName: 'Sanjay sah',
     role: 'student' as 'student' | 'teacher'
   });
 

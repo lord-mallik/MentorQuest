@@ -31,7 +31,7 @@ export function useAuth() {
 export function useAuthProvider() {
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [connectionStatus, setConnectionStatus] = useState({ connected: false, error: null });
+  const [connectionStatus, setConnectionStatus] = useState<{connected: boolean, error: string | null}>({ connected: false, error: null });
 
   const refreshConnection = async () => {
     const status = await checkSupabaseConnection();

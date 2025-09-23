@@ -14,10 +14,10 @@ import {
   Zap
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { useGameification } from '../../hooks/useGameification';
 import { db } from '../../lib/supabase';
 import { Quiz, Question, QuizAttempt } from '../../types';
 import { toast } from 'sonner';
+import { useGamification } from '../../hooks/useGamification';
 
 interface QuizInterfaceProps {
   quiz?: Quiz;
@@ -27,7 +27,7 @@ interface QuizInterfaceProps {
 
 const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit }) => {
   const { supabaseUser } = useAuth();
-  const { addXP } = useGameification();
+  const { addXP } = useGamification();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);

@@ -19,13 +19,13 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { useGameification } from '../../hooks/useGameification';
 import { toast } from 'sonner';
+import { useGamification } from '../../hooks/useGamification';
 
 const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { supabaseUser, signOut, connectionStatus } = useAuth();
-  const { profile } = useGameification();
+  const { profile } = useGamification();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

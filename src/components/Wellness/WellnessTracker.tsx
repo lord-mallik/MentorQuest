@@ -14,10 +14,10 @@ import {
   Clock
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { useGameification } from '../../hooks/useGameification';
 import { db } from '../../lib/supabase';
 import { aiService } from '../../lib/ai-services';
 import { toast } from 'sonner';
+import { useGamification } from '../../hooks/useGamification';
 
 interface WellnessEntry {
   mood: number;
@@ -38,7 +38,7 @@ interface WellnessRecommendation {
 const WellnessTracker: React.FC = () => {
   const { t } = useTranslation();
   const { supabaseUser } = useAuth();
-  const { addXP } = useGameification();
+  const { addXP } = useGamification();
   const [todayEntry, setTodayEntry] = useState<WellnessEntry>({
     mood: 3,
     stress_level: 3,

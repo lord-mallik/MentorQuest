@@ -15,10 +15,10 @@ import {
   Zap
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { useGameification } from '../../hooks/useGameification';
 import { aiService, ttsService, sttService } from '../../lib/ai-services';
 import { db } from '../../lib/supabase';
 import { toast } from 'sonner';
+import { useGamification } from '../../hooks/useGamification';
 
 interface Message {
   id: string;
@@ -39,7 +39,7 @@ interface Message {
 const AITutorInterface: React.FC = () => {
   const { t } = useTranslation();
   const { supabaseUser } = useAuth();
-  const { addXP } = useGameification();
+  const { addXP } = useGamification();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);

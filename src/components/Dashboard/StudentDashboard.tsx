@@ -17,14 +17,17 @@ import {
   Users
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { useGameification } from '../../hooks/useGameification';
 import { ProgressData, DailyQuest } from '../../types';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { useGamification } from '../../hooks/useGamification';
 
 const StudentDashboard: React.FC = () => {
   const { t } = useTranslation();
   const { supabaseUser } = useAuth();
-  const { profile, dailyQuests, loading: gamificationLoading, completeQuest, updateStreak } = useGameification();
+
+  console.log(supabaseUser)
+
+  const { profile, dailyQuests, loading: gamificationLoading, completeQuest, updateStreak } = useGamification();
   const [recentActivity, setRecentActivity] = useState<Array<{
     id: number;
     type: 'quiz_completed' | 'ai_tutor_session' | 'achievement_unlocked';
@@ -106,13 +109,13 @@ const StudentDashboard: React.FC = () => {
     }
   }, [gamificationLoading]);
 
-  const handleQuestComplete = async (quest: DailyQuest) => {
+  const handleQuestComplete = useCallback(async (quest: DailyQuest) => {
     try {
       await completeQuest(quest.id);
     } catch (error) {
       console.error('Error completing quest:', error);
     }
-  };
+  },[completeQuest]);
 
   const getTimeAgo = (timestamp: string) => {
     const now = new Date();
@@ -132,16 +135,16 @@ const StudentDashboard: React.FC = () => {
       default: return Star;
     }
   };
-
-  if (loading || !profile) {
-    return (
-      <LoadingSpinner 
-        size="lg" 
-        message="Loading your dashboard..." 
-        fullScreen={false}
-      />
-    );
-  }
+console.log(loading, profile)
+  // if (loading || !profile) {
+  //   return (
+  //     <LoadingSpinner 
+  //       size="lg" 
+  //       message="Loading your dashboard..." 
+  //       fullScreen={false}
+  //     />
+  //   );
+  // }
 
   return (
     <div className="space-y-8">
@@ -161,8 +164,8 @@ const StudentDashboard: React.FC = () => {
             </p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold">Level {profile.level}</div>
-            <div className="text-primary-200">{profile.xp} XP</div>
+            <div className="text-2xl font-bold">Level {profile?.level}</div>
+            <div className="text-primary-200">{profile?.xp} XP</div>
           </div>
         </div>
       </motion.div>
@@ -178,7 +181,7 @@ const StudentDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">{t('totalXP')}</p>
-              <p className="text-2xl font-bold text-gray-900">{profile.xp.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">{profile?.xp.toLocaleString()}</p>
             </div>
             <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
               <Zap className="w-6 h-6 text-yellow-600" />
@@ -195,7 +198,7 @@ const StudentDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">{t('studyStreak')}</p>
-              <p className="text-2xl font-bold text-gray-900">{profile.streak_days} days</p>
+              <p className="text-2xl font-bold text-gray-900">{profile?.streak_days} days</p>
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
               <Target className="w-6 h-6 text-orange-600" />
@@ -212,8 +215,8 @@ const StudentDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Study Time</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {Math.floor(profile.total_study_time / 60)}h
+              <p className="text-2xl font-bold text-gray-900">            
+                {profile?.total_study_time &&  Math.floor(profile?.total_study_time / 60)}h
               </p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -232,7 +235,7 @@ const StudentDashboard: React.FC = () => {
             <div>
               <p className="text-sm font-medium text-gray-600">{t('achievements')}</p>
               <p className="text-2xl font-bold text-gray-900">
-                {Array.isArray(profile.achievements) ? profile.achievements.length : 0}
+                {Array.isArray(profile?.achievements) ? profile.achievements.length : 0}
               </p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
