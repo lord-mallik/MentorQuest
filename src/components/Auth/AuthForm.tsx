@@ -36,8 +36,8 @@ const AuthForm: React.FC = () => {
         await signIn(formData.email, formData.password);
         toast.success('Welcome back!');
       }
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setLoading(false);
     }

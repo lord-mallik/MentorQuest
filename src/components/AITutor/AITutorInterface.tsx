@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -12,7 +12,6 @@ import {
   Lightbulb,
   Star,
   Loader,
-  MessageSquare,
   Zap
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -29,12 +28,17 @@ interface Message {
   subject?: string;
   difficulty?: string;
   followUpQuestions?: string[];
-  quizQuestions?: any[];
+  quizQuestions?: Array<{
+    question: string;
+    options: string[];
+    correct_answer: string | number;
+    explanation: string;
+  }>;
 }
 
 const AITutorInterface: React.FC = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { supabaseUser } = useAuth();
   const { addXP } = useGameification();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
@@ -62,25 +66,25 @@ const AITutorInterface: React.FC = () => {
     { value: 'hard', label: t('hard'), color: 'text-red-600' }
   ];
 
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
   useEffect(() => {
     // Welcome message
-    if (messages.length === 0) {
+    if (messages.length === 0 && supabaseUser) {
       setMessages([{
         id: '1',
         type: 'ai',
-        content: `Hello ${user?.full_name}! I'm your AI tutor. I'm here to help you learn and understand any topic. What would you like to explore today?`,
+        content: `Hello ${supabaseUser?.user_metadata?.full_name || supabaseUser?.email}! I'm your AI tutor. I'm here to help you learn and understand any topic. What would you like to explore today?`,
         timestamp: new Date()
       }]);
     }
-  }, [user]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, [supabaseUser, messages.length]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,16 +123,15 @@ const AITutorInterface: React.FC = () => {
       setMessages(prev => [...prev, aiMessage]);
 
       // Save session to database
-      if (user) {
+      if (supabaseUser) {
         try {
           await db.addAITutorSession({
-            student_id: user.id,
+            student_id: supabaseUser.id,
             question: inputText,
             answer: response.answer,
             subject: selectedSubject,
             difficulty_level: selectedDifficulty,
-            follow_up_questions: response.follow_up_questions,
-            created_at: new Date().toISOString()
+            follow_up_questions: response.follow_up_questions
           });
 
           // Award XP for asking questions
@@ -140,7 +143,7 @@ const AITutorInterface: React.FC = () => {
       }
 
       // Auto-speak response if enabled
-      if (user?.preferences?.voice_enabled) {
+      if (supabaseUser?.user_metadata?.voice_enabled) {
         handleSpeak(response.answer);
       }
 
@@ -186,7 +189,7 @@ const AITutorInterface: React.FC = () => {
           setIsListening(false);
           toast.error('Voice input error. Please try again.');
         },
-        user?.preferences?.language || 'en-US'
+        supabaseUser?.user_metadata?.language || 'en-US'
       );
     }
   };
@@ -198,7 +201,7 @@ const AITutorInterface: React.FC = () => {
     } else {
       setIsSpeaking(true);
       ttsService.speak(text, {
-        language: user?.preferences?.language || 'en',
+        language: supabaseUser?.user_metadata?.language || 'en',
         rate: 0.9,
         pitch: 1
       });
@@ -212,8 +215,13 @@ const AITutorInterface: React.FC = () => {
     setInputText(question);
   };
 
-  const handleQuizGeneration = async (questions: any[]) => {
-    if (!user) return;
+  const handleQuizGeneration = async (questions: Array<{
+    question: string;
+    options: string[];
+    correct_answer: string | number;
+    explanation: string;
+  }>) => {
+    if (!supabaseUser) return;
 
     try {
       // Create a quick quiz from the generated questions
@@ -223,16 +231,17 @@ const AITutorInterface: React.FC = () => {
         questions: questions,
         difficulty_level: selectedDifficulty,
         subject: selectedSubject,
-        created_by: user.id,
+        created_by: supabaseUser.id,
         created_at: new Date().toISOString()
       };
 
       // Save quiz (in a real app, you'd save to database)
+      console.log('Quiz generated:', quiz.title);
       toast.success('Quiz generated! You can find it in your quizzes section.');
-      
+
       // Award XP for quiz generation
       await addXP(25, 'quiz generation');
-      
+
     } catch (error) {
       console.error('Error generating quiz:', error);
       toast.error('Error generating quiz. Please try again.');

@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from '../types/database';
 import { toast } from 'sonner';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL;
+const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables');
@@ -40,11 +40,11 @@ export const checkSupabaseConnection = async () => {
     }
     
     return { connected: true, error: null };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Supabase connection error:', error);
-    return { 
-      connected: false, 
-      error: error.message || 'Connection failed' 
+    return {
+      connected: false,
+      error: error instanceof Error ? error.message : 'Connection failed'
     };
   }
 };
@@ -68,7 +68,21 @@ export const db = {
     }
   },
 
-  async updateUser(userId: string, updates: any) {
+  async updateUser(userId: string, updates: Partial<{
+    email: string;
+    full_name: string;
+    role: 'student' | 'teacher' | 'admin';
+    avatar_url: string | null;
+    preferences: {
+      language: string;
+      theme: 'light' | 'dark' | 'auto';
+      dyslexic_font: boolean;
+      high_contrast: boolean;
+      reduced_motion: boolean;
+      text_size: 'small' | 'medium' | 'large';
+      voice_enabled: boolean;
+    };
+  }>) {
     try {
       const { data, error } = await supabase
         .from('users')
@@ -220,7 +234,10 @@ export const db = {
   },
 
   // Quiz operations
-  async getQuizzes(filters: any = {}) {
+  async getQuizzes(filters: {
+    subject?: string;
+    difficulty?: 'easy' | 'medium' | 'hard';
+  } = {}) {
     try {
       let query = supabase
         .from('quizzes')
@@ -249,7 +266,16 @@ export const db = {
     }
   },
 
-  async submitQuizAttempt(attempt: any) {
+  async submitQuizAttempt(attempt: {
+    quiz_id: string;
+    student_id: string;
+    answers: Record<string, string | string[]>;
+    score: number;
+    max_score: number;
+    percentage: number;
+    time_taken?: number | null;
+    xp_earned: number;
+  }) {
     try {
       const { data, error } = await supabase
         .from('quiz_attempts')
@@ -266,7 +292,15 @@ export const db = {
   },
 
   // Wellness operations
-  async addWellnessEntry(entry: any) {
+  async addWellnessEntry(entry: {
+    student_id: string;
+    date?: string;
+    mood: number;
+    stress_level: number;
+    energy_level: number;
+    notes?: string;
+    activities?: string[];
+  }) {
     try {
       const { data, error } = await supabase
         .from('wellness_entries')
@@ -300,7 +334,15 @@ export const db = {
   },
 
   // AI Tutor operations
-  async addAITutorSession(session: any) {
+  async addAITutorSession(session: {
+    student_id: string;
+    question: string;
+    answer: string;
+    subject: string;
+    difficulty_level: string;
+    satisfaction_rating?: number | null;
+    follow_up_questions: string[];
+  }) {
     try {
       const { data, error } = await supabase
         .from('ai_tutor_sessions')
@@ -427,9 +469,26 @@ export const db = {
         .eq('teacher_id', teacherId)
         .eq('active', true)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
-      return data || [];
+      return (data || []) as Array<{
+        id: string;
+        name: string;
+        subject: string;
+        teacher_id: string;
+        description: string;
+        class_code: string;
+        active: boolean;
+        created_at: string;
+        updated_at: string;
+        class_students?: Array<{
+          users?: {
+            id: string;
+            full_name: string;
+            avatar_url?: string;
+          };
+        }>;
+      }>;
     } catch (error: any) {
       console.error('Error fetching classes:', error);
       return [];
@@ -458,7 +517,7 @@ export const db = {
     try {
       const { data, error } = await supabase
         .from('daily_quests')
-        .update({ 
+        .update({
           completed: true,
           current_progress: supabase.raw('target_value')
         })
@@ -466,10 +525,10 @@ export const db = {
         .eq('student_id', studentId)
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error completing quest:', error);
       throw new Error('Failed to complete quest');
     }
@@ -514,7 +573,11 @@ export const db = {
 // Real-time subscriptions helper
 export const subscribeToTable = (
   table: string,
-  callback: (payload: any) => void,
+  callback: (payload: {
+    eventType: 'INSERT' | 'UPDATE' | 'DELETE';
+    new: Record<string, unknown>;
+    old: Record<string, unknown>;
+  }) => void,
   filter?: string
 ) => {
   const channel = supabase
@@ -543,7 +606,7 @@ export const withErrorHandling = async <T>(
 ): Promise<T> => {
   try {
     return await operation();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`${errorMessage}:`, error);
     toast.error(errorMessage);
     throw error;

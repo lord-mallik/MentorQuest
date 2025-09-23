@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -21,29 +20,52 @@ import { db } from '../../lib/supabase';
 import { ClassRoom, LiveSession } from '../../types';
 import LoadingSpinner from '../common/LoadingSpinner';
 
+interface AnalyticsData {
+  totalStudents: number;
+  activeClasses: number;
+  averageEngagement: number;
+  completionRate: number;
+  wellnessAlerts: number;
+  recentQuizzes: number;
+  studyHoursThisWeek: number;
+  topPerformers: Array<{
+    name: string;
+    score: number;
+    subject: string;
+  }>;
+  strugglingStudents: Array<{
+    name: string;
+    subject: string;
+    score: number;
+  }>;
+}
+
 const TeacherDashboard: React.FC = () => {
-  const { t } = useTranslation();
   const { supabaseUser } = useAuth();
   const [classes, setClasses] = useState<ClassRoom[]>([]);
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
-  const [analytics, setAnalytics] = useState<any>({});
+  const [analytics, setAnalytics] = useState<AnalyticsData>({
+    totalStudents: 0,
+    activeClasses: 0,
+    averageEngagement: 0,
+    completionRate: 0,
+    wellnessAlerts: 0,
+    recentQuizzes: 0,
+    studyHoursThisWeek: 0,
+    topPerformers: [],
+    strugglingStudents: []
+  });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (supabaseUser) {
-      loadTeacherData();
-    }
-  }, [supabaseUser]);
-
-  const loadTeacherData = async () => {
+  const loadTeacherData = useCallback(async () => {
     try {
       setLoading(true);
       
       // Load real classes data
       const classesData = await db.getClasses(supabaseUser!.id);
-      setClasses(classesData.map(cls => ({
+      setClasses(classesData.map((cls) => ({
         ...cls,
-        students: cls.class_students?.map(cs => cs.users?.id).filter(Boolean) || []
+        students: cls.class_students?.map((cs) => cs.users?.id || '').filter(Boolean) || []
       })));
 
       setLiveSessions([
@@ -60,9 +82,8 @@ const TeacherDashboard: React.FC = () => {
       ]);
 
       // Calculate analytics from real data
-      const totalStudents = classesData.reduce((acc, cls) => 
-        acc + (cls.class_students?.length || 0), 0
-      );
+      const totalStudents = classesData.reduce((acc, cls) =>
+        acc + (cls.class_students?.length || 0), 0);
 
       setAnalytics({
         totalStudents,
@@ -91,10 +112,14 @@ const TeacherDashboard: React.FC = () => {
           id: '1',
           name: 'Mathematics Grade 10',
           subject: 'Mathematics',
-          teacher_id: user!.id,
+          teacher_id: supabaseUser!.id,
           students: ['student1', 'student2', 'student3'],
+          description: 'Advanced mathematics for grade 10 students',
+          class_code: 'MATH10-001',
+          active: true,
           created_at: new Date().toISOString(),
-          active: true
+          updated_at: new Date().toISOString(),
+          class_students: []
         }
       ]);
       setAnalytics({
@@ -111,7 +136,13 @@ const TeacherDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [supabaseUser]);
+
+  useEffect(() => {
+    if (supabaseUser) {
+      loadTeacherData();
+    }
+  }, [supabaseUser, loadTeacherData]);
 
   if (loading) {
     return (
@@ -134,7 +165,7 @@ const TeacherDashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              Welcome back, {supabaseUser?.full_name}! 👨‍🏫
+              Welcome back, {supabaseUser?.user_metadata?.full_name || supabaseUser?.email}! 👨‍🏫
             </h1>
             <p className="text-primary-100 text-lg">
               Ready to inspire and educate your students today?
@@ -281,7 +312,7 @@ const TeacherDashboard: React.FC = () => {
                 <div>
                   <h4 className="font-medium text-gray-900 mb-3">Top Performers</h4>
                   <div className="space-y-2">
-                    {analytics.topPerformers.map((student: any, index: number) => (
+                    {analytics.topPerformers.map((student, index: number) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
                         <div>
                           <p className="font-medium text-gray-900">{student.name}</p>
@@ -301,7 +332,7 @@ const TeacherDashboard: React.FC = () => {
                 <div>
                   <h4 className="font-medium text-gray-900 mb-3">Need Attention</h4>
                   <div className="space-y-2">
-                    {analytics.strugglingStudents.map((student: any, index: number) => (
+                    {analytics.strugglingStudents.map((student, index: number) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-yellow-50 rounded-lg">
                         <div>
                           <p className="font-medium text-gray-900">{student.name}</p>

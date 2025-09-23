@@ -24,7 +24,7 @@ import { toast } from 'sonner';
 
 const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { user, signOut, connectionStatus } = useAuth();
+  const { supabaseUser, signOut, connectionStatus } = useAuth();
   const { profile } = useGameification();
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ const Navbar: React.FC = () => {
     { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
   ];
 
-  const navItems = user?.role === 'teacher' ? teacherNavItems : studentNavItems;
+  const navItems = supabaseUser?.user_metadata?.role === 'teacher' ? teacherNavItems : studentNavItems;
 
   const handleSignOut = async () => {
     try {
@@ -131,7 +131,7 @@ const Navbar: React.FC = () => {
               )}
               
               {/* XP and Level (Students only) */}
-              {user?.role === 'student' && profile && (
+              {supabaseUser?.user_metadata?.role === 'student' && profile && (
                 <div className="flex items-center space-x-3">
                   <div className="text-right">
                     <div className="text-sm font-semibold text-gray-900">
@@ -181,7 +181,7 @@ const Navbar: React.FC = () => {
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <span className="text-sm font-medium text-gray-700">
-                    {user?.full_name || 'User'}
+                    {supabaseUser?.user_metadata?.full_name || supabaseUser?.email || 'User'}
                   </span>
                 </Link>
                 
@@ -226,7 +226,7 @@ const Navbar: React.FC = () => {
               )}
               
               {/* XP Display for Mobile Students */}
-              {user?.role === 'student' && profile && (
+              {supabaseUser?.user_metadata?.role === 'student' && profile && (
                 <div className="text-xs text-gray-600">
                   L{profile.level} • {profile.xp}XP
                 </div>

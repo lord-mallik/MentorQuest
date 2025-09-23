@@ -56,7 +56,11 @@ export interface ClassRoom {
   active: boolean;
   created_at: string;
   updated_at: string;
-  class_students?: any[];
+  class_students?: Array<{
+    users?: {
+      id: string;
+    };
+  }>;
 }
 
 export interface Course {

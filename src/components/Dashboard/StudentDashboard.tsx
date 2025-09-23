@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -23,26 +23,22 @@ import LoadingSpinner from '../common/LoadingSpinner';
 
 const StudentDashboard: React.FC = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { supabaseUser } = useAuth();
   const { profile, dailyQuests, loading: gamificationLoading, completeQuest, updateStreak } = useGameification();
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [recentActivity, setRecentActivity] = useState<Array<{
+    id: number;
+    type: 'quiz_completed' | 'ai_tutor_session' | 'achievement_unlocked';
+    title: string;
+    score?: number;
+    xp_earned?: number;
+    topic?: string;
+    description?: string;
+    timestamp: string;
+  }>>([]);
   const [progressData, setProgressData] = useState<ProgressData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      updateStreak();
-      loadDashboardData();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (!gamificationLoading) {
-      setLoading(false);
-    }
-  }, [gamificationLoading]);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     // Mock data for demo
     setRecentActivity([
       {
@@ -95,7 +91,20 @@ const StudentDashboard: React.FC = () => {
         last_activity: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
       }
     ]);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (supabaseUser) {
+      updateStreak();
+      loadDashboardData();
+    }
+  }, [supabaseUser, updateStreak, loadDashboardData]);
+
+  useEffect(() => {
+    if (!gamificationLoading) {
+      setLoading(false);
+    }
+  }, [gamificationLoading]);
 
   const handleQuestComplete = async (quest: DailyQuest) => {
     try {
@@ -145,7 +154,7 @@ const StudentDashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              {t('welcomeBack')}, {user?.full_name}! 👋
+              {t('welcomeBack')}, {supabaseUser?.user_metadata?.full_name}! 👋
             </h1>
             <p className="text-primary-100 text-lg">
               Ready to continue your learning journey?

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wifi, WifiOff, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { checkSupabaseConnection } from '../../lib/supabase';
 
 const ConnectionStatus: React.FC = () => {
   const { connectionStatus, refreshConnection } = useAuth();
@@ -71,7 +70,7 @@ const ConnectionStatus: React.FC = () => {
   const getStatusConfig = () => {
     if (!isOnline) {
       return {
-        icon: WifiOff,
+        icon: AlertCircle,
         message: 'No internet connection',
         bgColor: 'bg-red-500',
         textColor: 'text-white',

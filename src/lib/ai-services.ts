@@ -1,5 +1,6 @@
 // AI Services using free APIs only
-const HUGGINGFACE_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY || '';
+declare global { interface Window { webkitSpeechRecognition: any; SpeechRecognition: any; } }
+const HUGGINGFACE_API_KEY = (import.meta as any).env?.VITE_HUGGINGFACE_API_KEY || '';
 const HUGGINGFACE_API_URL = 'https://api-inference.huggingface.co/models';
 
 // Free AI models available on HuggingFace
@@ -11,8 +12,29 @@ const MODELS = {
   TEXT_CLASSIFICATION: 'facebook/bart-large-mnli'
 };
 
+interface HuggingFaceResponse {
+  generated_text?: string;
+  label?: string;
+  score?: number;
+  [key: string]: unknown;
+}
+
+interface QueryParameters {
+  max_length?: number;
+  temperature?: number;
+  do_sample?: boolean;
+  [key: string]: unknown;
+}
+
+interface MoodData {
+  mood: number;
+  energy_level: number;
+  stress_level?: string;
+  [key: string]: unknown;
+}
+
 class AIService {
-  private async query(model: string, inputs: any, parameters?: any) {
+  private async query(model: string, inputs: string, parameters?: QueryParameters): Promise<HuggingFaceResponse[]> {
     try {
       const response = await fetch(`${HUGGINGFACE_API_URL}/${model}`, {
         headers: {
@@ -71,7 +93,7 @@ Explanation:`;
             quiz_questions: await this.generateQuizQuestions(question, subject, difficulty)
           };
         }
-      } catch (apiError) {
+      } catch {
         console.warn('AI API unavailable, using enhanced fallback response');
       }
 
@@ -266,10 +288,10 @@ Remember: Mastering difficult concepts takes time and persistence. You're on the
   async generateQuizQuestions(topic: string, subject: string, difficulty: string = 'medium', count: number = 3) {
     try {
       return this.getFallbackQuizQuestions(topic, subject, difficulty, count);
-    } catch (error) {
-      console.error('Error generating quiz questions:', error);
-      return this.getFallbackQuizQuestions(topic, subject, difficulty, count);
-    }
+  } catch {
+    console.error('Error generating quiz questions');
+    return this.getFallbackQuizQuestions(topic, subject, difficulty, count);
+  }
   }
 
   private getFallbackQuizQuestions(topic: string, subject: string, difficulty: string, count: number = 3) {
@@ -363,13 +385,13 @@ Remember: Mastering difficult concepts takes time and persistence. You're on the
       
       if (response && response[0]?.label) {
         const sentiment = response[0].label.toLowerCase();
-        const score = response[0].score;
-        
+        const score = response[0].score || 0;
+
         return {
-          sentiment: sentiment.includes('positive') ? 'positive' : 
+          sentiment: sentiment.includes('positive') ? 'positive' :
                     sentiment.includes('negative') ? 'negative' : 'neutral',
           confidence: score,
-          stress_level: sentiment.includes('negative') && score > 0.7 ? 'high' : 
+          stress_level: sentiment.includes('negative') && score > 0.7 ? 'high' :
                        sentiment.includes('negative') ? 'medium' : 'low'
         };
       }
@@ -409,7 +431,7 @@ Remember: Mastering difficult concepts takes time and persistence. You're on the
     };
   }
 
-  async generateWellnessRecommendations(moodData: any, stressLevel: string) {
+  async generateWellnessRecommendations(moodData: MoodData, stressLevel: string) {
     const recommendations = {
       high: [
         'Take 5 deep breaths - inhale for 4 counts, hold for 4, exhale for 6',
@@ -612,7 +634,7 @@ export class SpeechToTextService {
 
   startListening(
     onResult: (text: string, isFinal: boolean) => void,
-    onError?: (error: any) => void,
+    onError?: (error: unknown) => void,
     language = 'en-US'
   ) {
     if (!this.recognition) {
@@ -622,7 +644,7 @@ export class SpeechToTextService {
 
     this.recognition.lang = language;
     
-    this.recognition.onresult = (event: any) => {
+    this.recognition.onresult = (event: unknown) => {
       let finalTranscript = '';
       let interimTranscript = '';
 
@@ -638,7 +660,7 @@ export class SpeechToTextService {
       onResult(finalTranscript || interimTranscript, !!finalTranscript);
     };
 
-    this.recognition.onerror = (event: any) => {
+    this.recognition.onerror = (event: unknown) => {
       console.error('Speech recognition error:', event.error);
       onError?.(event.error);
       this.isListening = false;

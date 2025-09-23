@@ -1,26 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
-import { db } from '../lib/supabase';
+import { db, supabase } from '../lib/supabase';
 import { Achievement, DailyQuest, StudentProfile } from '../types';
 import { toast } from 'sonner';
 
 export function useGameification() {
-  const { user } = useAuth();
+  const { supabaseUser } = useAuth();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [dailyQuests, setDailyQuests] = useState<DailyQuest[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [unlockedAchievements, setUnlockedAchievements] = useState<any[]>([]);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user && user.role === 'student') {
-      loadGameificationData();
-    }
-  }, [user]);
-
-  const loadGameificationData = async () => {
-    if (!user) {
+  const loadGameificationData = useCallback(async () => {
+    if (!supabaseUser) {
       setLoading(false);
       return;
     }
@@ -31,10 +25,10 @@ export function useGameification() {
       
       // Load student profile
       try {
-        let profileData = await db.getStudentProfile(user.id);
+        let profileData = await db.getStudentProfile(supabaseUser.id);
         if (!profileData) {
           // Create profile if it doesn't exist
-          profileData = await db.createStudentProfile(user.id);
+          profileData = await db.createStudentProfile(supabaseUser.id);
         }
         setProfile(profileData);
       } catch (profileError) {
@@ -44,7 +38,7 @@ export function useGameification() {
 
       // Load daily quests
       try {
-        const questsData = await db.getDailyQuests(user.id);
+        const questsData = await db.getDailyQuests(supabaseUser.id);
         setDailyQuests(questsData);
       } catch (questsError) {
         console.error('Error loading daily quests:', questsError);
@@ -62,7 +56,7 @@ export function useGameification() {
 
       // Load unlocked achievements
       try {
-        const unlockedData = await db.getStudentAchievements(user.id);
+        const unlockedData = await db.getStudentAchievements(supabaseUser.id);
         setUnlockedAchievements(unlockedData);
       } catch (unlockedError) {
         console.error('Error loading unlocked achievements:', unlockedError);
@@ -77,8 +71,90 @@ export function useGameification() {
     }
   };
 
+  const checkAchievements = async (stats: {
+    level?: number;
+    xp?: number;
+    quizzesCompleted?: number;
+    studyHours?: number;
+    streakDays?: number;
+    wellnessCheckins?: number;
+  }): Promise<Achievement[]> => {
+    if (!supabaseUser || !achievements || achievements.length === 0) return [];
+
+    const unlockedAchievements: Achievement[] = [];
+
+    for (const achievement of achievements) {
+      try {
+        // Check if already unlocked (from loaded data)
+        const alreadyUnlocked = unlockedAchievements.some(
+          ua => ua.id === achievement.id
+        );
+        if (alreadyUnlocked) continue;
+
+        // Check achievement requirements
+        let shouldUnlock = false;
+
+        switch (achievement.category) {
+          case 'learning':
+            if (achievement.requirements.quizzes_completed &&
+                (stats.quizzesCompleted ?? 0) >= achievement.requirements.quizzes_completed) {
+              shouldUnlock = true;
+            }
+            if (achievement.requirements.study_hours &&
+                (stats.studyHours ?? 0) >= achievement.requirements.study_hours) {
+              shouldUnlock = true;
+            }
+            break;
+
+          case 'streak':
+            if (achievement.requirements.streak_days &&
+                (stats.streakDays ?? 0) >= achievement.requirements.streak_days) {
+              shouldUnlock = true;
+            }
+            break;
+
+          case 'social':
+            if (achievement.requirements.level &&
+                (stats.level ?? 0) >= achievement.requirements.level) {
+              shouldUnlock = true;
+            }
+            break;
+
+          case 'wellness':
+            if (achievement.requirements.wellness_checkins &&
+                (stats.wellnessCheckins ?? 0) >= achievement.requirements.wellness_checkins) {
+              shouldUnlock = true;
+            }
+            break;
+        }
+
+        if (shouldUnlock) {
+          try {
+            const unlockedAchievement = await db.unlockAchievement(supabaseUser.id, achievement.id);
+            if (unlockedAchievement) {
+              unlockedAchievements.push(achievement);
+
+              // Show achievement notification (don't add XP here to avoid recursion)
+              toast.success(`🏆 Achievement Unlocked: ${achievement.name}!`, {
+                description: achievement.description,
+                duration: 8000,
+                className: 'achievement-unlock'
+              });
+            }
+          } catch (unlockError) {
+            console.error('Error unlocking achievement:', unlockError);
+          }
+        }
+      } catch (checkError) {
+        console.error('Error checking achievement:', checkError);
+      }
+    }
+
+    return unlockedAchievements;
+  };
+
   const addXP = async (amount: number, source: string = 'general') => {
-    if (!user || !profile) {
+    if (!supabaseUser || !profile) {
       console.warn('User or profile not available for XP addition');
       return { xp: 0, level: 1, leveledUp: false };
     }
@@ -89,7 +165,7 @@ export function useGameification() {
       const leveledUp = newLevel > profile.level;
 
       // Update XP in database
-      const updatedProfile = await db.updateStudentXP(user.id, amount);
+      const updatedProfile = await db.updateStudentXP(supabaseUser.id, amount);
       if (updatedProfile) {
         setProfile(updatedProfile);
       } else {
@@ -113,9 +189,15 @@ export function useGameification() {
           duration: 5000,
           className: 'achievement-unlock'
         });
-        
+
         // Check for level-based achievements
-        await checkAchievements({ level: newLevel, xp: newXP });
+        const newAchievements = await checkAchievements({ level: newLevel, xp: newXP });
+        if (newAchievements.length > 0) {
+          // Award XP for new achievements
+          for (const achievement of newAchievements) {
+            await addXP(achievement.xp_reward, 'achievement');
+          }
+        }
       }
 
       return { xp: newXP, level: newLevel, leveledUp };
@@ -126,83 +208,8 @@ export function useGameification() {
     }
   };
 
-  const checkAchievements = async (stats: any) => {
-    if (!user || !achievements || achievements.length === 0) return [];
-
-    const unlockedAchievements = [];
-
-    for (const achievement of achievements) {
-      try {
-        // Check if already unlocked (from loaded data)
-        const alreadyUnlocked = unlockedAchievements.some(
-          ua => ua.achievement_id === achievement.id
-        );
-        if (alreadyUnlocked) continue;
-
-        // Check achievement requirements
-        let shouldUnlock = false;
-
-        switch (achievement.category) {
-          case 'learning':
-            if (achievement.requirements.quizzes_completed && 
-                stats.quizzesCompleted >= achievement.requirements.quizzes_completed) {
-              shouldUnlock = true;
-            }
-            if (achievement.requirements.study_hours && 
-                stats.studyHours >= achievement.requirements.study_hours) {
-              shouldUnlock = true;
-            }
-            break;
-
-          case 'streak':
-            if (achievement.requirements.streak_days && 
-                stats.streakDays >= achievement.requirements.streak_days) {
-              shouldUnlock = true;
-            }
-            break;
-
-          case 'social':
-            if (achievement.requirements.level && 
-                stats.level >= achievement.requirements.level) {
-              shouldUnlock = true;
-            }
-            break;
-
-          case 'wellness':
-            if (achievement.requirements.wellness_checkins && 
-                stats.wellnessCheckins >= achievement.requirements.wellness_checkins) {
-              shouldUnlock = true;
-            }
-            break;
-        }
-
-        if (shouldUnlock) {
-          try {
-            const unlockedAchievement = await db.unlockAchievement(user.id, achievement.id);
-            if (unlockedAchievement) {
-              unlockedAchievements.push(achievement);
-              
-              // Show achievement notification (don't add XP here to avoid recursion)
-              toast.success(`🏆 Achievement Unlocked: ${achievement.name}!`, {
-                description: achievement.description,
-                duration: 8000,
-                className: 'achievement-unlock'
-              });
-            }
-          } catch (unlockError) {
-            console.error('Error unlocking achievement:', unlockError);
-          }
-        }
-      } catch (checkError) {
-        console.error('Error checking achievement:', checkError);
-      }
-    }
-
-    return unlockedAchievements;
-  };
-
   const completeQuest = async (questId: string) => {
-    if (!user) {
+    if (!supabaseUser) {
       console.warn('User not available for quest completion');
       return;
     }
@@ -220,7 +227,7 @@ export function useGameification() {
       }
 
       // Complete quest in database
-      await db.completeQuest(questId, user.id);
+      await db.completeQuest(questId, supabaseUser.id);
       
       // Update local state
       setDailyQuests(prev => 
@@ -238,7 +245,7 @@ export function useGameification() {
   };
 
   const updateStreak = async () => {
-    if (!user || !profile) {
+    if (!supabaseUser || !profile) {
       console.warn('User or profile not available for streak update');
       return;
     }
@@ -260,19 +267,15 @@ export function useGameification() {
 
       if (newStreakDays !== profile.streak_days) {
         try {
-          const updatedProfile = await db.updateUser(user.id, {
-            last_activity: new Date().toISOString()
-          });
-          
           // Update student profile streak
-          const { data, error } = await db.supabase
+          const { data, error } = await supabase
             .from('student_profiles')
-            .update({ 
+            .update({
               streak_days: newStreakDays,
               last_activity: new Date().toISOString(),
               updated_at: new Date().toISOString()
             })
-            .eq('user_id', user.id)
+            .eq('user_id', supabaseUser.id)
             .select()
             .single();
 
@@ -298,7 +301,7 @@ export function useGameification() {
   };
 
   const generateDailyQuests = async () => {
-    if (!user) {
+    if (!supabaseUser) {
       console.warn('User not available for quest generation');
       return;
     }
@@ -313,28 +316,28 @@ export function useGameification() {
         {
           title: 'Study Session',
           description: 'Complete a 25-minute study session',
-          quest_type: 'study_time' as const,
+          type: 'study_time' as const,
           target_value: 25,
           xp_reward: 50
         },
         {
           title: 'Quiz Master',
           description: 'Complete 2 quizzes',
-          quest_type: 'quiz_completion' as const,
+          type: 'quiz_completion' as const,
           target_value: 2,
           xp_reward: 75
         },
         {
           title: 'Wellness Check',
           description: 'Complete your daily wellness check-in',
-          quest_type: 'wellness_checkin' as const,
+          type: 'wellness_checkin' as const,
           target_value: 1,
           xp_reward: 25
         },
         {
           title: 'Streak Keeper',
           description: 'Maintain your study streak',
-          quest_type: 'streak' as const,
+          type: 'streak' as const,
           target_value: 1,
           xp_reward: 30
         }
@@ -346,12 +349,12 @@ export function useGameification() {
         .slice(0, 3)
         .map(template => ({
           ...template,
-          student_id: user.id,
+          student_id: supabaseUser.id,
           expires_at: tomorrow.toISOString(),
           completed: false
         }));
 
-      const { data, error } = await db.supabase
+      const { data, error } = await supabase
         .from('daily_quests')
         .insert(selectedQuests)
         .select();
@@ -368,6 +371,12 @@ export function useGameification() {
     }
   };
 
+  useEffect(() => {
+    if (supabaseUser && supabaseUser.role === 'student') {
+      loadGameificationData();
+    }
+  }, [supabaseUser, loadGameificationData]);
+
   return {
     profile,
     dailyQuests,
@@ -382,4 +391,4 @@ export function useGameification() {
     generateDailyQuests,
     refreshData: loadGameificationData
   };
-}
+};

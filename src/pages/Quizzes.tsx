@@ -1,28 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen,
   Search,
-  Filter,
   Star,
   Clock,
-  Users,
-  Trophy,
   Target,
-  Brain,
-  Zap,
   TrendingUp
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { db } from '../lib/supabase';
 import { Quiz, QuizAttempt } from '../types';
 import QuizInterface from '../components/Quizzes/QuizInterface';
 import { toast } from 'sonner';
 
 const Quizzes: React.FC = () => {
-  const { t } = useTranslation();
-  const { user } = useAuth();
+  const { supabaseUser } = useAuth();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -129,12 +121,7 @@ const Quizzes: React.FC = () => {
     }
   ];
 
-  useEffect(() => {
-    loadQuizzes();
-    loadRecentAttempts();
-  }, [user]);
-
-  const loadQuizzes = async () => {
+  const loadQuizzes = useCallback(async () => {
     try {
       setLoading(true);
       // In a real app, this would fetch from the database
@@ -146,18 +133,18 @@ const Quizzes: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const loadRecentAttempts = async () => {
-    if (!user) return;
-    
+  const loadRecentAttempts = useCallback(async () => {
+    if (!supabaseUser) return;
+
     try {
       // Mock recent attempts
       const mockAttempts: QuizAttempt[] = [
         {
           id: 'attempt-1',
           quiz_id: 'quiz-1',
-          student_id: user.id,
+          student_id: supabaseUser.id,
           answers: {},
           score: 20,
           max_score: 25,
@@ -167,7 +154,7 @@ const Quizzes: React.FC = () => {
         {
           id: 'attempt-2',
           quiz_id: 'quiz-2',
-          student_id: user.id,
+          student_id: supabaseUser.id,
           answers: {},
           score: 18,
           max_score: 25,
@@ -179,7 +166,12 @@ const Quizzes: React.FC = () => {
     } catch (error) {
       console.error('Error loading recent attempts:', error);
     }
-  };
+  }, [supabaseUser]);
+
+  useEffect(() => {
+    loadQuizzes();
+    loadRecentAttempts();
+  }, [loadQuizzes, loadRecentAttempts, supabaseUser]);
 
   const filteredQuizzes = quizzes.filter(quiz => {
     const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

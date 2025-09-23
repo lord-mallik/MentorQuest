@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase, checkSupabaseConnection, db } from '../lib/supabase';
 import { User } from '../types';
@@ -14,8 +14,8 @@ interface AuthContextType {
   updateProfile: (updates: Partial<User>) => Promise<void>;
   refreshConnection: () => Promise<{
     connected: boolean;
-    error: any;
-}>;
+    error: string | null;
+  }>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,25 +39,7 @@ export function useAuthProvider() {
     return status;
   };
 
-  useEffect(() => {
-    (async () => {
-      refreshConnection();
-      // Get initial session
-      console.log("calling")
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log(session);
-      
-      if (session?.user) {
-        setSupabaseUser(session?.user);
-        loadUserProfile(session.user.id);
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
-    })()
-  }, []);
-
-  const loadUserProfile = async (userId: string) => {
+  const loadUserProfile = useCallback(async (userId: string) => {
     try {
       // Check connection first
       const status = await refreshConnection();
@@ -66,7 +48,7 @@ export function useAuthProvider() {
         setLoading(false);
         return;
       }
-      
+
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -85,14 +67,34 @@ export function useAuthProvider() {
         return;
       }
 
-        setSupabaseUser(data);
+      setSupabaseUser(data);
 
     } catch (error) {
       console.error('Error loading user profile:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      refreshConnection();
+      // Get initial session
+      console.log("calling")
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log(session);
+
+      if (session?.user) {
+        setSupabaseUser(session?.user);
+        loadUserProfile(session.user.id);
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    })()
+  }, [loadUserProfile]);
+
+
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -103,9 +105,10 @@ export function useAuthProvider() {
       });
 
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Sign in error:', error);
-      throw new Error(error.message || 'Failed to sign in');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -130,23 +133,20 @@ export function useAuthProvider() {
       // Create user profile
       if (data.user) {
         try {
-          const { error: profileError } = await supabase
-            .from('users')
-            .insert({
-              id: data.user.id,
-              email: data.user.email!,
-              full_name: fullName,
-              role: role,
-              preferences: {
-                language: 'en',
-                theme: 'light',
-                dyslexic_font: false,
-                high_contrast: false,
-                reduced_motion: false,
-                text_size: 'medium',
-                voice_enabled: true
-              }
-            });
+          const { error: profileError } = await db.updateUser(data.user.id, {
+            email: data.user.email!,
+            full_name: fullName,
+            role: role,
+            preferences: {
+              language: 'en',
+              theme: 'light',
+              dyslexic_font: false,
+              high_contrast: false,
+              reduced_motion: false,
+              text_size: 'medium',
+              voice_enabled: true
+            }
+          });
 
           if (profileError) {
             console.error('Error creating user profile:', profileError);
@@ -173,9 +173,10 @@ export function useAuthProvider() {
           toast.warning('Account created but profile setup incomplete. Please refresh the page.');
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Sign up error:', error);
-      throw new Error(error.message || 'Failed to create account');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create account';
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -191,9 +192,10 @@ export function useAuthProvider() {
               setSupabaseUser(null);
 
       setSupabaseUser(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Sign out error:', error);
-      throw new Error(error.message || 'Failed to sign out');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sign out';
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -205,9 +207,10 @@ export function useAuthProvider() {
 
       const updatedUser = await db.updateUser(supabaseUser.id, updates);
       setSupabaseUser(updatedUser);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Update profile error:', error);
-      throw new Error(error.message || 'Failed to update profile');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update profile';
+      throw new Error(errorMessage);
     }
   };
 

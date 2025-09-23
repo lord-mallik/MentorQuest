@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -7,9 +7,6 @@ import {
   Activity,
   Calendar,
   TrendingUp,
-  Smile,
-  Meh,
-  Frown,
   Battery,
   AlertTriangle,
   CheckCircle,
@@ -40,7 +37,7 @@ interface WellnessRecommendation {
 
 const WellnessTracker: React.FC = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { supabaseUser } = useAuth();
   const { addXP } = useGameification();
   const [todayEntry, setTodayEntry] = useState<WellnessEntry>({
     mood: 3,
@@ -50,7 +47,7 @@ const WellnessTracker: React.FC = () => {
     activities: []
   });
   const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
-  const [weeklyData, setWeeklyData] = useState<any[]>([]);
+  const [weeklyData, setWeeklyData] = useState<WellnessEntry[]>([]);
   const [recommendations, setRecommendations] = useState<WellnessRecommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
@@ -74,14 +71,8 @@ const WellnessTracker: React.FC = () => {
     { id: 'gratitude', name: 'Gratitude Practice', icon: '🙏', category: 'mental' }
   ];
 
-  useEffect(() => {
-    if (user) {
-      loadWellnessData();
-    }
-  }, [user]);
-
-  const loadWellnessData = async () => {
-    if (!user) return;
+  const loadWellnessData = useCallback(async () => {
+    if (!supabaseUser) return;
 
     try {
       // Check if user has already checked in today
@@ -89,7 +80,7 @@ const WellnessTracker: React.FC = () => {
       const { data: todayData } = await db.supabase
         .from('wellness_entries')
         .select('*')
-        .eq('student_id', user.id)
+        .eq('student_id', supabaseUser.id)
         .eq('date', today)
         .single();
 
@@ -111,7 +102,7 @@ const WellnessTracker: React.FC = () => {
       const { data: weekData } = await db.supabase
         .from('wellness_entries')
         .select('*')
-        .eq('student_id', user.id)
+        .eq('student_id', supabaseUser.id)
         .gte('date', weekAgo.toISOString().split('T')[0])
         .order('date', { ascending: true });
 
@@ -120,15 +111,21 @@ const WellnessTracker: React.FC = () => {
     } catch (error) {
       console.error('Error loading wellness data:', error);
     }
-  };
+  }, [supabaseUser]);
+
+  useEffect(() => {
+    if (supabaseUser) {
+      loadWellnessData();
+    }
+  }, [supabaseUser, loadWellnessData]);
 
   const handleSubmitWellness = async () => {
-    if (!user) return;
+    if (!supabaseUser) return;
 
     setLoading(true);
     try {
       const wellnessData = {
-        student_id: user.id,
+        student_id: supabaseUser.id,
         date: new Date().toISOString().split('T')[0],
         mood: todayEntry.mood,
         stress_level: todayEntry.stress_level,
@@ -184,7 +181,7 @@ const WellnessTracker: React.FC = () => {
         description: `Recommended based on your current wellness levels`,
         icon: ['🧘', '🚶', '💧', '🎵', '📞'][index % 5],
         duration: '5-15 min',
-        category: ['mental', 'physical', 'physical', 'relaxation', 'social'][index % 5] as any
+        category: ['mental', 'physical', 'physical', 'relaxation', 'social'][index % 5] as 'mental' | 'physical' | 'relaxation' | 'social'
       }));
 
       setRecommendations(formattedRecommendations);

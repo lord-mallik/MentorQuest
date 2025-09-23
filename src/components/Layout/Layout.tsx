@@ -5,15 +5,15 @@ import Navbar from './Navbar';
 import { useAuth } from '../../hooks/useAuth';
 
 const Layout: React.FC = () => {
-  const { user } = useAuth();
+  const { supabaseUser } = useAuth();
   const navigate = useNavigate();
 
-    useEffect(() => {
-      if (!user) {
-        navigate('/auth', { replace: true });
-        return;
-      }
-  },[])
+  useEffect(() => {
+    if (!supabaseUser) {
+      navigate('/auth', { replace: true });
+      return;
+    }
+  }, [supabaseUser, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50">

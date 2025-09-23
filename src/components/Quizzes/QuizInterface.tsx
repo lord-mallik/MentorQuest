@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import {
   BookOpen,
   Clock,
@@ -8,7 +7,6 @@ import {
   XCircle,
   Star,
   Trophy,
-  Brain,
   Target,
   ArrowRight,
   ArrowLeft,
@@ -28,15 +26,28 @@ interface QuizInterfaceProps {
 }
 
 const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit }) => {
-  const { t } = useTranslation();
-  const { user } = useAuth();
+  const { supabaseUser } = useAuth();
   const { addXP } = useGameification();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<{
+    attempt: QuizAttempt;
+    questionResults: Array<{
+      question_id: string;
+      question: string;
+      user_answer: string;
+      correct_answer: string;
+      is_correct: boolean;
+      points_earned: number;
+      explanation: string;
+    }>;
+    percentage: number;
+    xpEarned: number;
+    grade: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
 
@@ -90,73 +101,29 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
   const currentQuiz = quiz || mockQuiz;
   const currentQuestion = questions[currentQuestionIndex];
 
-  useEffect(() => {
-    if (currentQuiz) {
-      setQuestions(currentQuiz.questions || []);
-      if (currentQuiz.time_limit) {
-        setTimeRemaining(currentQuiz.time_limit * 60); // Convert minutes to seconds
-      }
-    }
-  }, [currentQuiz]);
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (quizStarted && timeRemaining !== null && timeRemaining > 0 && !quizCompleted) {
-      timer = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev === null || prev <= 1) {
-            handleSubmitQuiz();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [quizStarted, timeRemaining, quizCompleted]);
-
-  const startQuiz = () => {
-    setQuizStarted(true);
-    setCurrentQuestionIndex(0);
-    setAnswers({});
-  };
-
-  const handleAnswerSelect = (answer: string) => {
-    if (quizCompleted) return;
-    
-    setAnswers(prev => ({
-      ...prev,
-      [currentQuestion.id]: answer
-    }));
-  };
-
-  const nextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    }
-  };
-
-  const previousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-    }
-  };
-
-  const handleSubmitQuiz = async () => {
-    if (!user || !currentQuiz) return;
+  const handleSubmitQuiz = useCallback(async () => {
+    if (!supabaseUser || !currentQuiz) return;
 
     setLoading(true);
     try {
       // Calculate score
       let score = 0;
       let maxScore = 0;
-      const questionResults: any[] = [];
+      const questionResults: Array<{
+        question_id: string;
+        question: string;
+        user_answer: string;
+        correct_answer: string;
+        is_correct: boolean;
+        points_earned: number;
+        explanation: string;
+      }> = [];
 
       questions.forEach(question => {
         maxScore += question.points;
         const userAnswer = answers[question.id];
-        const isCorrect = userAnswer === question.correct_answer;
-        
+        const isCorrect = Array.isArray(userAnswer) ? userAnswer.join(',') === question.correct_answer : userAnswer === question.correct_answer;
+
         if (isCorrect) {
           score += question.points;
         }
@@ -165,7 +132,7 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
           question_id: question.id,
           question: question.question,
           user_answer: userAnswer,
-          correct_answer: question.correct_answer,
+          correct_answer: Array.isArray(question.correct_answer) ? question.correct_answer.join(', ') : question.correct_answer,
           is_correct: isCorrect,
           points_earned: isCorrect ? question.points : 0,
           explanation: question.explanation
@@ -173,12 +140,12 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
       });
 
       const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
-      
+
       // Create quiz attempt
       const attempt: QuizAttempt = {
         id: `attempt_${Date.now()}`,
         quiz_id: currentQuiz.id,
-        student_id: user.id,
+        student_id: supabaseUser.id,
         answers,
         score,
         max_score: maxScore,
@@ -224,7 +191,7 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
 
       setResults(results);
       setQuizCompleted(true);
-      
+
       // Call completion callback
       onComplete?.(attempt);
 
@@ -237,6 +204,58 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
       toast.error('Error submitting quiz. Please try again.');
     } finally {
       setLoading(false);
+    }
+  }, [supabaseUser, currentQuiz, questions, answers, timeRemaining, quiz, addXP, onComplete]);
+
+  useEffect(() => {
+    if (currentQuiz) {
+      setQuestions(currentQuiz.questions || []);
+      if (currentQuiz.time_limit) {
+        setTimeRemaining(currentQuiz.time_limit * 60); // Convert minutes to seconds
+      }
+    }
+  }, [currentQuiz]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (quizStarted && timeRemaining !== null && timeRemaining > 0 && !quizCompleted) {
+      timer = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev === null || prev <= 1) {
+            handleSubmitQuiz();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [quizStarted, timeRemaining, quizCompleted, handleSubmitQuiz]);
+
+  const startQuiz = () => {
+    setQuizStarted(true);
+    setCurrentQuestionIndex(0);
+    setAnswers({});
+  };
+
+  const handleAnswerSelect = (answer: string) => {
+    if (quizCompleted) return;
+
+    setAnswers(prev => ({
+      ...prev,
+      [currentQuestion.id]: answer
+    }));
+  };
+
+  const nextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    }
+  };
+
+  const previousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
     }
   };
 
@@ -360,7 +379,7 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Question Review</h2>
             <div className="space-y-4">
-              {results.questionResults.map((result: any, index: number) => (
+              {results.questionResults.map((result, index: number) => (
                 <div key={index} className={`p-4 rounded-lg border-2 ${
                   result.is_correct ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
                 }`}>
