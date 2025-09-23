@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from '../types/database';
 import { toast } from 'sonner';
 
-const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL;
-const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = (import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_SUPABASE_URL;
+const supabaseAnonKey = (import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables');
@@ -29,7 +29,7 @@ export const supabase = createClient<Database>(
 // Connection health check
 export const checkSupabaseConnection = async () => {
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('users')
       .select('count')
       .limit(1)
@@ -62,7 +62,7 @@ export const db = {
       
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching user:', error);
       throw new Error('Failed to fetch user data');
     }
@@ -93,7 +93,7 @@ export const db = {
       
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating user:', error);
       throw new Error('Failed to update user');
     }
@@ -115,10 +115,10 @@ export const db = {
       
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching student profile:', error);
       // If profile doesn't exist, return null instead of throwing
-      if (error.code === 'PGRST116') {
+      if (error instanceof Error && 'code' in error && error.code === 'PGRST116') {
         return null;
       }
       throw new Error('Failed to fetch student profile');
@@ -144,7 +144,7 @@ export const db = {
       
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating student profile:', error);
       throw new Error('Failed to create student profile');
     }
@@ -160,7 +160,7 @@ export const db = {
       
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating student XP:', error);
       // Fallback to manual update if function fails
       try {
@@ -184,7 +184,7 @@ export const db = {
           if (updateError) throw updateError;
           return updatedData;
         }
-      } catch (fallbackError) {
+      } catch (fallbackError: unknown) {
         console.error('Fallback XP update failed:', fallbackError);
       }
       throw new Error('Failed to update XP');
@@ -200,12 +200,12 @@ export const db = {
         .eq('user_id', userId)
         .single();
       
-      if (error && error.code === 'PGRST116') {
+      if (error && 'code' in error && error.code === 'PGRST116') {
         return null;
       }
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching teacher profile:', error);
       throw new Error('Failed to fetch teacher profile');
     }
@@ -227,7 +227,7 @@ export const db = {
       
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating teacher profile:', error);
       throw new Error('Failed to create teacher profile');
     }
@@ -260,7 +260,7 @@ export const db = {
       
       if (error) throw error;
       return data || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching quizzes:', error);
       return [];
     }
@@ -285,7 +285,7 @@ export const db = {
       
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting quiz attempt:', error);
       throw new Error('Failed to submit quiz attempt');
     }
@@ -310,7 +310,7 @@ export const db = {
       
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding wellness entry:', error);
       throw new Error('Failed to record wellness data');
     }
@@ -327,7 +327,7 @@ export const db = {
       
       if (error) throw error;
       return data || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching wellness entries:', error);
       return [];
     }
@@ -352,7 +352,7 @@ export const db = {
       
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding AI tutor session:', error);
       // Don't throw error for AI sessions, just log it
       return null;
@@ -374,7 +374,7 @@ export const db = {
       
       if (error) throw error;
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error unlocking achievement:', error);
       // Don't throw for achievements, just log
       return null;
@@ -393,7 +393,7 @@ export const db = {
       
       if (error) throw error;
       return data || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching notifications:', error);
       return [];
     }
@@ -407,7 +407,7 @@ export const db = {
         .eq('id', notificationId);
       
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error marking notification as read:', error);
     }
   },
@@ -423,7 +423,7 @@ export const db = {
       
       if (error) throw error;
       return data || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching leaderboard:', error);
       return [];
     }
@@ -449,7 +449,7 @@ export const db = {
       
       if (error) throw error;
       return data || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching courses:', error);
       return [];
     }
@@ -489,7 +489,7 @@ export const db = {
           };
         }>;
       }>;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching classes:', error);
       return [];
     }
@@ -507,7 +507,7 @@ export const db = {
       
       if (error) throw error;
       return data || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching daily quests:', error);
       return [];
     }
@@ -544,7 +544,7 @@ export const db = {
       
       if (error) throw error;
       return data || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching achievements:', error);
       return [];
     }
@@ -563,7 +563,7 @@ export const db = {
       
       if (error) throw error;
       return data || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching student achievements:', error);
       return [];
     }

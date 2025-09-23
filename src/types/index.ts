@@ -27,11 +27,11 @@ export interface StudentProfile {
   streak_days: number;
   last_activity: string;
   total_study_time: number;
-  achievements: any[];
+  achievements: Achievement[];
   wellness_streak: number;
   created_at: string;
   updated_at: string;
-  student_achievements?: any[];
+  student_achievements?: StudentAchievement[];
 }
 
 export interface TeacherProfile {
@@ -134,10 +134,18 @@ export interface Achievement {
   description: string;
   icon: string;
   category: 'learning' | 'streak' | 'social' | 'wellness' | 'special';
-  requirements: Record<string, any>;
+  requirements: Record<string, number | string | boolean>;
   xp_reward: number;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
   unlocked_at?: string;
+}
+
+export interface StudentAchievement {
+  id: string;
+  student_id: string;
+  achievement_id: string;
+  unlocked_at: string;
+  achievements?: Achievement;
 }
 
 export interface WellnessData {

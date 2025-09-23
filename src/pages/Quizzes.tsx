@@ -133,7 +133,7 @@ const Quizzes: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [mockQuizzes]);
 
   const loadRecentAttempts = useCallback(async () => {
     if (!supabaseUser) return;

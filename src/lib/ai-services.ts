@@ -1,6 +1,11 @@
 // AI Services using free APIs only
-declare global { interface Window { webkitSpeechRecognition: any; SpeechRecognition: any; } }
-const HUGGINGFACE_API_KEY = (import.meta as any).env?.VITE_HUGGINGFACE_API_KEY || '';
+declare global { 
+  interface Window { 
+    webkitSpeechRecognition: typeof SpeechRecognition; 
+    SpeechRecognition: typeof SpeechRecognition; 
+  } 
+}
+const HUGGINGFACE_API_KEY = (import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_HUGGINGFACE_API_KEY || '';
 const HUGGINGFACE_API_URL = 'https://api-inference.huggingface.co/models';
 
 // Free AI models available on HuggingFace
@@ -30,7 +35,7 @@ interface MoodData {
   mood: number;
   energy_level: number;
   stress_level?: string;
-  [key: string]: unknown;
+  [key: string]: string | number | undefined;
 }
 
 class AIService {
@@ -287,6 +292,7 @@ Remember: Mastering difficult concepts takes time and persistence. You're on the
 
   async generateQuizQuestions(topic: string, subject: string, difficulty: string = 'medium', count: number = 3) {
     try {
+      console.error('Quiz generation error:', error);
       return this.getFallbackQuizQuestions(topic, subject, difficulty, count);
   } catch {
     console.error('Error generating quiz questions');
@@ -482,7 +488,7 @@ Remember: Mastering difficult concepts takes time and persistence. You're on the
     // Enhanced lesson plan generation
     const topics = syllabus.split('\n').filter(line => line.trim().length > 0);
     
-    const lessonActivities = {
+    const lessonActivities: Record<string, string[]> = {
       mathematics: [
         'Problem-solving workshop with real-world examples',
         'Interactive demonstration using visual aids',
@@ -504,7 +510,7 @@ Remember: Mastering difficult concepts takes time and persistence. You're on the
         'Discussion and reflection session',
         'Creative project or presentation'
       ]
-    };
+    } as const;
 
     const activities = lessonActivities[subject.toLowerCase() as keyof typeof lessonActivities] || lessonActivities.default;
     
