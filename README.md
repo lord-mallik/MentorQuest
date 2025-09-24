@@ -2,6 +2,30 @@
 
 MentorQuest is a comprehensive EdTech platform that combines AI tutoring, gamified learning, wellness tracking, and teacher tools using exclusively free and open-source technologies.
 
+## 🎯 Quick Start
+
+```bash
+# 1. Clone and setup
+git clone <repository-url>
+cd mentorquest
+npm run setup
+
+# 2. Configure environment
+# Edit .env with your Supabase credentials
+
+# 3. Setup database
+npm run db:migrate
+npm run db:seed
+
+# 4. Start development
+npm run dev
+
+```
+
+**Demo Accounts:**
+- Teacher: `teacher@demo.com` / `password123`
+- Student: `student@demo.com` / `password123`
+
 ## 🌟 Features
 
 ### For Students
@@ -41,38 +65,43 @@ MentorQuest is a comprehensive EdTech platform that combines AI tutoring, gamifi
 - **Web Speech API** for voice features
 - **LibreTranslate** for multilingual support
 
-## 🛠️ Setup Instructions
+## 🛠️ Development Setup
 
 ### Prerequisites
 
 - Node.js 18+ and npm
 - Supabase account (free tier)
+- PostgreSQL client (for database operations)
 
 ### 1. Clone and Install
 
+
 ```bash
-git clone <repository-url>
-cd mentorquest
 npm install
 ```
-
 ### 2. Environment Setup
 
 ```bash
 cp .env.example .env
 ```
 
+
 Edit `.env` with your Supabase credentials:
 
 ```env
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_HUGGINGFACE_API_KEY=your-key (optional)
+VITE_LIBRETRANSLATE_API_URL=https://libretranslate.de
 ```
 
-### 3. Database Setup
+#### 3. Database Setup
 
-Click the "Connect to Supabase" button in the top right of the application to set up your Supabase project and database schema.
-
+**Option A: Using npm scripts (recommended)**
+```bash
+npm run db:migrate  # Create schema
+npm run db:seed     # Add demo data
+```
 The application will automatically create the necessary tables and relationships:
 
 - Users and authentication
@@ -89,11 +118,13 @@ The application will automatically create the necessary tables and relationships
 npm run dev
 ```
 
-Visit `http://localhost:5173` to see the application.
+Visit `http://localhost:5173`
 
-## 🎮 Demo Accounts
+## 🧪 Testing
 
-For testing purposes, you can use these demo accounts:
+```bash
+# Run all tests
+npm test
 
 **Student Account:**
 
@@ -104,6 +135,7 @@ For testing purposes, you can use these demo accounts:
 
 - Email: `teacher@demo.com`
 - Password: `password123`
+
 
 ## 🌍 Internationalization
 
@@ -166,6 +198,7 @@ Language can be changed from the navbar dropdown or automatically detected from 
 - Personalized recommendations
 - Mental health insights
 
+
 ## 📊 Analytics & Progress
 
 ### Student Analytics
@@ -190,7 +223,7 @@ Language can be changed from the navbar dropdown or automatically detected from 
 - **GDPR compliance** ready
 - **Privacy-first** design
 
-## 🚀 Deployment
+## 📁 Project Structure
 
 ### Frontend (Vercel/Netlify)
 
@@ -215,13 +248,48 @@ The backend is automatically deployed with Supabase. No additional deployment ne
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🔍 Troubleshooting
+
+### Common Issues
+
+**Build Errors:**
+```bash
+rm -rf node_modules dist
+npm install
+npm run build
+```
+
+**Database Connection:**
+- Verify Supabase URL and keys in `.env`
+- Check if Supabase project is active
+- Ensure RLS policies allow access
+
+**Migration Issues:**
+```bash
+npm run test:migrations
+```
+
+**Environment Variables:**
+- Ensure all required variables start with `VITE_`
+- Restart dev server after changes
+- Check for typos in variable names
+
+### Getting Help
+
+1. Check the browser console for errors
+2. Review Supabase logs in dashboard
+3. Verify environment variables
+4. Run `npm run setup` to validate configuration
+5. Check [docs/](./docs/) for detailed guides
+
 ## 🆘 Support
 
 For support and questions:
 
 - Create an issue on GitHub
-- Check the documentation
+- Check the [documentation](./docs/)
 - Join our community discussions
+- Review troubleshooting guide above
 
 ## 🎉 Acknowledgments
 
@@ -233,3 +301,6 @@ For support and questions:
 ---
 
 **MentorQuest** - Empowering education through AI and open-source technology! 🚀📚
+
+Built with ❤️ using React, TypeScript, Supabase, and HuggingFace
+
