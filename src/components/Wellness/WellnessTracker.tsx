@@ -14,7 +14,7 @@ import {
   Clock
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { db } from '../../lib/supabase';
+import { db, supabase } from '../../lib/supabase';
 import { aiService } from '../../lib/ai-services';
 import { toast } from 'sonner';
 import { useGamification } from '../../hooks/useGamification';
@@ -77,7 +77,7 @@ const WellnessTracker: React.FC = () => {
     try {
       // Check if user has already checked in today
       const today = new Date().toISOString().split('T')[0];
-      const { data: todayData } = await db.supabase
+      const { data: todayData } = await supabase
         .from('wellness_entries')
         .select('*')
         .eq('student_id', supabaseUser.id)
@@ -86,11 +86,11 @@ const WellnessTracker: React.FC = () => {
 
       if (todayData) {
         setTodayEntry({
-          mood: todayData.mood,
-          stress_level: todayData.stress_level,
-          energy_level: todayData.energy_level,
-          notes: todayData.notes || '',
-          activities: todayData.activities || []
+          mood: (todayData as any).mood,
+          stress_level: (todayData as any).stress_level,
+          energy_level: (todayData as any).energy_level,
+          notes: (todayData as any).notes || '',
+          activities: (todayData as any).activities || []
         });
         setHasCheckedInToday(true);
       }
@@ -98,8 +98,8 @@ const WellnessTracker: React.FC = () => {
       // Load weekly data for trends
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
-      
-      const { data: weekData } = await db.supabase
+
+      const { data: weekData } = await supabase
         .from('wellness_entries')
         .select('*')
         .eq('student_id', supabaseUser.id)
@@ -172,7 +172,10 @@ const WellnessTracker: React.FC = () => {
                          todayEntry.stress_level >= 3 ? 'medium' : 'low';
       
       const aiRecommendations = await aiService.generateWellnessRecommendations(
-        todayEntry, 
+        {
+          ...todayEntry,
+          stress_level: stressLevel
+        } as any,
         stressLevel
       );
 
@@ -203,7 +206,7 @@ const WellnessTracker: React.FC = () => {
   };
 
   const getWeeklyAverage = (field: 'mood' | 'stress_level' | 'energy_level') => {
-    if (weeklyData.length === 0) return 0;
+    if (weeklyData.length === 0) return '0.0';
     const sum = weeklyData.reduce((acc, entry) => acc + entry[field], 0);
     return (sum / weeklyData.length).toFixed(1);
   };

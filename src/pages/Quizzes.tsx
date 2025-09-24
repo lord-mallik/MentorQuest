@@ -148,8 +148,10 @@ const Quizzes: React.FC = () => {
           answers: {},
           score: 20,
           max_score: 25,
+          percentage: 80,
           completed_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          time_taken: 600
+          time_taken: 600,
+          xp_earned: 50
         },
         {
           id: 'attempt-2',
@@ -158,8 +160,10 @@ const Quizzes: React.FC = () => {
           answers: {},
           score: 18,
           max_score: 25,
+          percentage: 72,
           completed_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          time_taken: 800
+          time_taken: 800,
+          xp_earned: 40
         }
       ];
       setRecentAttempts(mockAttempts);
@@ -219,12 +223,12 @@ const Quizzes: React.FC = () => {
         className="text-center"
       >
         <div className="flex items-center justify-center space-x-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center shadow-glow-primary">
             <BookOpen className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Quizzes</h1>
+          <h1 className="heading-lg text-neutral-900">Quizzes</h1>
         </div>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        <p className="body-lg text-neutral-700 max-w-2xl mx-auto">
           Test your knowledge and track your progress with interactive quizzes
         </p>
       </motion.div>
@@ -239,7 +243,7 @@ const Quizzes: React.FC = () => {
         >
           {/* Search and Filters */}
           <div className="card p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Search & Filter</h3>
+            <h3 className="heading-sm text-neutral-900 mb-4">Search & Filter</h3>
             
             {/* Search */}
             <div className="relative mb-4">
@@ -255,7 +259,7 @@ const Quizzes: React.FC = () => {
 
             {/* Subject Filter */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+              <label className="label-base text-neutral-800 mb-2 block">Subject</label>
               <select
                 value={selectedSubject}
                 onChange={(e) => setSelectedSubject(e.target.value)}
@@ -271,7 +275,7 @@ const Quizzes: React.FC = () => {
 
             {/* Difficulty Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+              <label className="label-base text-neutral-800 mb-2 block">Difficulty</label>
               <select
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value)}

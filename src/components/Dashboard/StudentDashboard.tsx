@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { ProgressData, DailyQuest } from '../../types';
-import LoadingSpinner from '../common/LoadingSpinner';
 import { useGamification } from '../../hooks/useGamification';
 
 const StudentDashboard: React.FC = () => {
@@ -152,21 +151,45 @@ console.log(loading, profile)
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl p-8 text-white"
+        className="gradient-primary rounded-3xl p-8 text-white shadow-glow-primary relative overflow-hidden"
       >
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 50%)`
+          }} />
+        </div>
+        
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex-1">
+            <motion.h1 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="heading-lg mb-3"
+            >
               {t('welcomeBack')}, {supabaseUser?.user_metadata?.full_name}! 👋
-            </h1>
-            <p className="text-primary-100 text-lg">
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="body-lg text-white/90"
+            >
               Ready to continue your learning journey?
-            </p>
+            </motion.p>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold">Level {profile?.level}</div>
-            <div className="text-primary-200">{profile?.xp} XP</div>
-          </div>
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-right"
+          >
+            <div className="heading-md mb-1">Level {profile?.level}</div>
+            <div className="body-base text-white/80">{profile?.xp} XP</div>
+          </motion.div>
         </div>
       </motion.div>
 
@@ -176,15 +199,15 @@ console.log(loading, profile)
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="card p-6"
+          className="card p-6 hover:shadow-glow-primary/20"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">{t('totalXP')}</p>
-              <p className="text-2xl font-bold text-gray-900">{profile?.xp.toLocaleString()}</p>
+              <p className="label-base text-neutral-600">{t('totalXP')}</p>
+              <p className="heading-md text-neutral-900">{profile?.xp.toLocaleString()}</p>
             </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <Zap className="w-6 h-6 text-yellow-600" />
+            <div className="w-14 h-14 bg-gradient-to-br from-warning-400 to-warning-500 rounded-2xl flex items-center justify-center shadow-glow-accent">
+              <Zap className="w-7 h-7 text-white" />
             </div>
           </div>
         </motion.div>
@@ -193,15 +216,15 @@ console.log(loading, profile)
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="card p-6"
+          className="card p-6 hover:shadow-glow-secondary/20"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">{t('studyStreak')}</p>
-              <p className="text-2xl font-bold text-gray-900">{profile?.streak_days} days</p>
+              <p className="label-base text-neutral-600">{t('studyStreak')}</p>
+              <p className="heading-md text-neutral-900">{profile?.streak_days} days</p>
             </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Target className="w-6 h-6 text-orange-600" />
+            <div className="w-14 h-14 bg-gradient-to-br from-error-400 to-warning-500 rounded-2xl flex items-center justify-center shadow-glow-secondary">
+              <Target className="w-7 h-7 text-white" />
             </div>
           </div>
         </motion.div>
@@ -210,17 +233,17 @@ console.log(loading, profile)
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="card p-6"
+          className="card p-6 hover:shadow-glow-primary/20"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Study Time</p>
-              <p className="text-2xl font-bold text-gray-900">            
+              <p className="label-base text-neutral-600">Study Time</p>
+              <p className="heading-md text-neutral-900">            
                 {profile?.total_study_time &&  Math.floor(profile?.total_study_time / 60)}h
               </p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Clock className="w-6 h-6 text-blue-600" />
+            <div className="w-14 h-14 bg-gradient-to-br from-primary-400 to-primary-500 rounded-2xl flex items-center justify-center shadow-glow-primary">
+              <Clock className="w-7 h-7 text-white" />
             </div>
           </div>
         </motion.div>
@@ -229,17 +252,17 @@ console.log(loading, profile)
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="card p-6"
+          className="card p-6 hover:shadow-glow-accent/20"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">{t('achievements')}</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="label-base text-neutral-600">{t('achievements')}</p>
+              <p className="heading-md text-neutral-900">
                 {Array.isArray(profile?.achievements) ? profile.achievements.length : 0}
               </p>
             </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Trophy className="w-6 h-6 text-purple-600" />
+            <div className="w-14 h-14 bg-gradient-to-br from-secondary-400 to-secondary-500 rounded-2xl flex items-center justify-center shadow-glow-accent">
+              <Trophy className="w-7 h-7 text-white" />
             </div>
           </div>
         </motion.div>
@@ -255,15 +278,15 @@ console.log(loading, profile)
         >
           <div className="card p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">{t('todaysQuests')}</h3>
-              <Target className="w-5 h-5 text-primary-600" />
+              <h3 className="heading-sm text-neutral-900">{t('todaysQuests')}</h3>
+              <Target className="w-5 h-5 text-primary-700" />
             </div>
             
             <div className="space-y-4">
               {dailyQuests.length === 0 ? (
                 <div className="text-center py-8">
-                  <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No quests available today</p>
+                  <Calendar className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                  <p className="body-base text-neutral-600">No quests available today</p>
                 </div>
               ) : (
                 dailyQuests.map((quest) => (
@@ -277,8 +300,8 @@ console.log(loading, profile)
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{quest.title}</h4>
-                        <p className="text-sm text-gray-600">{quest.description}</p>
+                        <h4 className="label-lg text-neutral-900">{quest.title}</h4>
+                        <p className="body-sm text-neutral-700">{quest.description}</p>
                         <div className="flex items-center mt-2 space-x-2">
                           <Zap className="w-4 h-4 text-yellow-500" />
                           <span className="text-sm font-medium text-yellow-600">
@@ -315,16 +338,16 @@ console.log(loading, profile)
         >
           <div className="card p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">{t('progress')}</h3>
-              <TrendingUp className="w-5 h-5 text-primary-600" />
+              <h3 className="heading-sm text-neutral-900">{t('progress')}</h3>
+              <TrendingUp className="w-5 h-5 text-primary-700" />
             </div>
             
             <div className="space-y-4">
               {progressData.map((subject) => (
                 <div key={subject.subject} className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-gray-900">{subject.subject}</span>
-                    <span className="text-sm text-gray-600">
+                    <span className="label-lg text-neutral-900">{subject.subject}</span>
+                    <span className="body-sm text-neutral-700">
                       {subject.completed_lessons}/{subject.total_lessons}
                     </span>
                   </div>
@@ -336,7 +359,7 @@ console.log(loading, profile)
                       }}
                     ></div>
                   </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
+                  <div className="flex items-center justify-between body-sm text-neutral-700">
                     <span>Avg: {subject.average_score}%</span>
                     <span>{Math.floor(subject.time_spent / 60)}h studied</span>
                   </div>

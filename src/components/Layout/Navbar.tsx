@@ -10,13 +10,12 @@ import {
   Heart,
   User,
   Settings,
-  Trophy,
   Users,
   Menu,
   X,
   LogOut,
-  Bell,
-  AlertCircle
+  AlertCircle,
+  Trophy
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'sonner';
@@ -29,7 +28,6 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
 
   const studentNavItems = [
     { path: '/dashboard', icon: Home, label: t('dashboard') },
@@ -53,7 +51,7 @@ const Navbar: React.FC = () => {
     try {
       setIsMobileMenuOpen(false);
       await signOut();
-      toast.success('Signed out successfully');
+      toast.success('Signed out successfully', {position: 'bottom-right'});
       navigate('/auth');
     } catch (error) {
       console.error('Error signing out:', error);
@@ -64,7 +62,7 @@ const Navbar: React.FC = () => {
   const handleLanguageChange = (language: string) => {
     try {
       i18n.changeLanguage(language);
-      toast.success(`Language changed to ${language.toUpperCase()}`);
+      toast.success(`Language changed to ${language.toUpperCase()}`, {position: 'bottom-right'});
     } catch (error) {
       console.error('Error changing language:', error);
       toast.error('Failed to change language');
@@ -76,41 +74,46 @@ const Navbar: React.FC = () => {
   return (
     <>
       {/* Desktop Navbar */}
-      <nav className="hidden lg:flex fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <nav className="hidden lg:flex fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200 shadow-sm">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
-                <Brain className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+            <Link to="/dashboard" className="flex items-center space-x-3 group">
+              <motion.div 
+                whileHover={{ scale: 1.05, rotate: 5 }}
+                className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-glow-primary"
+              >
+                <Brain className="w-6 h-6 text-white" />
+              </motion.div>
+              <span className="heading-xs text-gradient-primary group-hover:scale-105 transition-transform">
                 MentorQuest
               </span>
             </Link>
 
             {/* Navigation Items */}
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    className={`relative px-4 py-2 rounded-xl label-base transition-all duration-300 group ${
                       isActive(item.path)
-                        ? 'text-primary-600 bg-primary-50'
-                        : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+                        ? 'text-primary-700 bg-primary-50 shadow-sm font-semibold'
+                        : 'text-neutral-700 hover:text-primary-700 hover:bg-neutral-50'
                     }`}
                   >
                     <div className="flex items-center space-x-2">
-                      <Icon className="w-4 h-4" />
+                      <Icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                        isActive(item.path) ? 'text-primary-600' : ''
+                      }`} />
                       <span>{item.label}</span>
                     </div>
                     {isActive(item.path) && (
                       <motion.div
                         layoutId="activeTab"
-                        className="absolute inset-0 bg-primary-100 rounded-lg -z-10"
+                        className="absolute inset-0 bg-gradient-to-r from-primary-100 to-secondary-100 rounded-xl -z-10"
                         initial={false}
                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                       />
@@ -132,31 +135,24 @@ const Navbar: React.FC = () => {
               
               {/* XP and Level (Students only) */}
               {supabaseUser?.user_metadata?.role === 'student' && profile && (
-                <div className="flex items-center space-x-3">
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  className="flex items-center space-x-3 bg-white border border-neutral-200 px-4 py-2 rounded-xl shadow-sm"
+                >
                   <div className="text-right">
-                    <div className="text-sm font-semibold text-gray-900">
+                    <div className="label-base text-neutral-900">
                       Level {profile.level}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="body-xs text-neutral-500">
                       {profile.xp} XP
                     </div>
                   </div>
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold">
+                  <div className="w-12 h-12 rounded-full gradient-warm flex items-center justify-center text-white font-bold shadow-glow-accent">
                     {profile.level}
                   </div>
-                </div>
+                </motion.div>
               )}
 
-              {/* Notifications */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className="p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg transition-colors"
-                >
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-                </button>
-              </div>
 
               {/* Language Selector */}
               <select
@@ -206,15 +202,18 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Mobile Navbar */}
-      <nav className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+      <nav className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200 shadow-sm">
         <div className="px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
+            <Link to="/dashboard" className="flex items-center space-x-2 group">
+              <motion.div 
+                whileHover={{ scale: 1.05, rotate: 5 }}
+                className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center shadow-glow-primary"
+              >
                 <Brain className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+              </motion.div>
+              <span className="heading-sm text-gradient-primary group-hover:scale-105 transition-transform">
                 MentorQuest
               </span>
             </Link>
@@ -300,15 +299,6 @@ const Navbar: React.FC = () => {
                 >
                   <User className="w-5 h-5" />
                   <span>{t('profile')}</span>
-                </Link>
-                
-                <Link
-                  to="/settings"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-primary-600 hover:bg-gray-50 transition-colors"
-                >
-                  <Settings className="w-5 h-5" />
-                  <span>{t('settings')}</span>
                 </Link>
                 
                 <button

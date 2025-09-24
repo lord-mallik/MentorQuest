@@ -51,37 +51,56 @@ const AuthForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-secondary-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-neutral-50 to-secondary-50 px-4 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.3) 0%, transparent 50%),
+                           radial-gradient(circle at 80% 20%, rgba(217, 70, 239, 0.3) 0%, transparent 50%),
+                           radial-gradient(circle at 40% 40%, rgba(34, 197, 94, 0.2) 0%, transparent 50%)`
+        }} />
+      </div>
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full space-y-8"
+        className="max-w-md w-full space-y-8 relative z-10"
       >
         {/* Logo and Title */}
         <div className="text-center">
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="mx-auto w-16 h-16 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center mb-4"
+            className="mx-auto w-20 h-20 gradient-primary rounded-3xl flex items-center justify-center mb-6 shadow-glow-primary"
           >
-            <Brain className="w-8 h-8 text-white" />
+            <Brain className="w-10 h-10 text-white" />
           </motion.div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+          <motion.h2 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="heading-lg text-gradient-primary mb-2"
+          >
             MentorQuest
-          </h2>
-          <p className="mt-2 text-gray-600">
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="body-lg text-neutral-600"
+          >
             {isSignUp ? 'Create your learning journey' : 'Welcome back to your learning journey'}
-          </p>
+          </motion.p>
         </div>
 
         {/* Auth Form */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl shadow-xl p-8"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+          className="card-glass p-8 shadow-xl"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name (Sign Up only) */}
@@ -198,10 +217,12 @@ const AuthForm: React.FC = () => {
             )}
 
             {/* Submit Button */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="btn-primary w-full h-12 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary w-full h-12 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed gradient-primary shadow-glow-primary"
             >
               {loading ? (
                 <div className="flex items-center justify-center space-x-2">
@@ -211,7 +232,7 @@ const AuthForm: React.FC = () => {
               ) : (
                 isSignUp ? t('signUp') : t('signIn')
               )}
-            </button>
+            </motion.button>
           </form>
 
           {/* Toggle Sign In/Up */}

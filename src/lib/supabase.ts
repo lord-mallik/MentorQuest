@@ -84,7 +84,7 @@ export const db = {
     };
   }>) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('users')
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', userId)
@@ -127,7 +127,7 @@ export const db = {
 
   async createStudentProfile(userId: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('student_profiles')
         .insert({
           user_id: userId,
@@ -152,7 +152,7 @@ export const db = {
 
   async updateStudentXP(userId: string, xpAmount: number) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .rpc('add_student_xp', {
           student_user_id: userId,
           xp_amount: xpAmount
@@ -169,7 +169,7 @@ export const db = {
           const newXP = profile.xp + xpAmount;
           const newLevel = Math.floor(newXP / 1000) + 1;
           
-          const { data: updatedData, error: updateError } = await supabase
+          const { data: updatedData, error: updateError } = await (supabase as any)
             .from('student_profiles')
             .update({
               xp: newXP,
@@ -213,7 +213,7 @@ export const db = {
 
   async createTeacherProfile(userId: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('teacher_profiles')
         .insert({
           user_id: userId,
@@ -277,12 +277,12 @@ export const db = {
     xp_earned: number;
   }) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quiz_attempts')
         .insert(attempt)
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     } catch (error: unknown) {
@@ -302,12 +302,12 @@ export const db = {
     activities?: string[];
   }) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('wellness_entries')
         .upsert(entry, { onConflict: 'student_id,date' })
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     } catch (error: unknown) {
@@ -344,12 +344,12 @@ export const db = {
     follow_up_questions: string[];
   }) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ai_tutor_sessions')
         .insert(session)
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     } catch (error: unknown) {
@@ -362,7 +362,7 @@ export const db = {
   // Achievement operations
   async unlockAchievement(studentId: string, achievementId: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('student_achievements')
         .insert({
           student_id: studentId,
@@ -371,7 +371,7 @@ export const db = {
         })
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     } catch (error: unknown) {
@@ -401,11 +401,11 @@ export const db = {
 
   async markNotificationRead(notificationId: string) {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('notifications')
         .update({ read: true })
         .eq('id', notificationId);
-      
+
       if (error) throw error;
     } catch (error: unknown) {
       console.error('Error marking notification as read:', error);
@@ -415,12 +415,12 @@ export const db = {
   // Leaderboard operations
   async getLeaderboard(classId?: string, timeFrame: string = 'all') {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .rpc('get_leaderboard', {
           class_id_param: classId || null,
           time_frame: timeFrame
         });
-      
+
       if (error) throw error;
       return data || [];
     } catch (error: unknown) {
@@ -515,11 +515,11 @@ export const db = {
 
   async completeQuest(questId: string, studentId: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('daily_quests')
         .update({
           completed: true,
-          current_progress: supabase.raw('target_value')
+          current_progress: (supabase as any).raw('target_value')
         })
         .eq('id', questId)
         .eq('student_id', studentId)

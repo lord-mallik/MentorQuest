@@ -100,32 +100,32 @@ export function useGamification() {
         switch (achievement.category) {
           case 'learning':
             if (achievement.requirements.quizzes_completed &&
-                (stats.quizzesCompleted ?? 0) >= achievement.requirements.quizzes_completed) {
+                (stats.quizzesCompleted ?? 0) >= (achievement.requirements.quizzes_completed as number)) {
               shouldUnlock = true;
             }
             if (achievement.requirements.study_hours &&
-                (stats.studyHours ?? 0) >= achievement.requirements.study_hours) {
+                (stats.studyHours ?? 0) >= (achievement.requirements.study_hours as number)) {
               shouldUnlock = true;
             }
             break;
 
           case 'streak':
             if (achievement.requirements.streak_days &&
-                (stats.streakDays ?? 0) >= achievement.requirements.streak_days) {
+                (stats.streakDays ?? 0) >= (achievement.requirements.streak_days as number)) {
               shouldUnlock = true;
             }
             break;
 
           case 'social':
             if (achievement.requirements.level &&
-                (stats.level ?? 0) >= achievement.requirements.level) {
+                (stats.level ?? 0) >= (achievement.requirements.level as number)) {
               shouldUnlock = true;
             }
             break;
 
           case 'wellness':
             if (achievement.requirements.wellness_checkins &&
-                (stats.wellnessCheckins ?? 0) >= achievement.requirements.wellness_checkins) {
+                (stats.wellnessCheckins ?? 0) >= (achievement.requirements.wellness_checkins as number)) {
               shouldUnlock = true;
             }
             break;
@@ -271,7 +271,7 @@ export function useGamification() {
       if (newStreakDays !== profile.streak_days) {
         try {
           // Update student profile streak
-          const { data, error } = await supabase
+          const { data, error } = await (supabase as any)
             .from('student_profiles')
             .update({
               streak_days: newStreakDays,
@@ -357,7 +357,7 @@ export function useGamification() {
           completed: false
         }));
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('daily_quests')
         .insert(selectedQuests)
         .select();

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Brain } from 'lucide-react';
 
 
 interface LoadingSpinnerProps {
@@ -30,7 +31,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   const containerClasses = fullScreen 
-    ? 'min-h-screen flex items-center justify-center bg-gray-50'
+    ? 'min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 via-primary-50/30 to-secondary-50/30'
     : 'flex items-center justify-center p-8';
 
   const renderSpinner = () => {
@@ -40,7 +41,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className={`${sizeClasses[size]} bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center`}
+            className={`${sizeClasses[size]} gradient-primary rounded-2xl flex items-center justify-center shadow-glow-primary`}
           >
             <Brain className={`${size === 'sm' ? 'w-2 h-2' : size === 'md' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-8 h-8'} text-white`} />
           </motion.div>
@@ -79,7 +80,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className={`${sizeClasses[size]} bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center`}
+            className={`${sizeClasses[size]} gradient-primary rounded-full flex items-center justify-center shadow-glow-primary`}
           >
             <Brain className={`${size === 'sm' ? 'w-2 h-2' : size === 'md' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-8 h-8'} text-white`} />
           </motion.div>

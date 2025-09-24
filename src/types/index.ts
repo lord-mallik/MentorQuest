@@ -124,8 +124,10 @@ export interface QuizAttempt {
   answers: Record<string, string>;
   score: number;
   max_score: number;
+  percentage: number;
   completed_at: string;
   time_taken: number;
+  xp_earned: number;
 }
 
 export interface Achievement {

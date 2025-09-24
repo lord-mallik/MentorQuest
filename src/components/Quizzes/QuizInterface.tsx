@@ -141,6 +141,12 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
 
       const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
 
+      // Calculate XP reward based on performance
+      let xpReward = Math.floor(score / 2); // Base XP
+      if (percentage >= 90) xpReward += 50; // Bonus for excellent performance
+      else if (percentage >= 80) xpReward += 30; // Bonus for good performance
+      else if (percentage >= 70) xpReward += 15; // Bonus for decent performance
+
       // Create quiz attempt
       const attempt: QuizAttempt = {
         id: `attempt_${Date.now()}`,
@@ -149,8 +155,10 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
         answers,
         score,
         max_score: maxScore,
+        percentage,
         completed_at: new Date().toISOString(),
-        time_taken: currentQuiz.time_limit ? (currentQuiz.time_limit * 60) - (timeRemaining || 0) : 0
+        time_taken: currentQuiz.time_limit ? (currentQuiz.time_limit * 60) - (timeRemaining || 0) : 0,
+        xp_earned: xpReward
       };
 
       // Save to database if real quiz
@@ -162,12 +170,6 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({ quiz, onComplete, onExit 
           // Continue with local processing even if DB save fails
         }
       }
-
-      // Calculate XP reward based on performance
-      let xpReward = Math.floor(score / 2); // Base XP
-      if (percentage >= 90) xpReward += 50; // Bonus for excellent performance
-      else if (percentage >= 80) xpReward += 30; // Bonus for good performance
-      else if (percentage >= 70) xpReward += 15; // Bonus for decent performance
 
       // Award XP
       if (xpReward > 0) {
