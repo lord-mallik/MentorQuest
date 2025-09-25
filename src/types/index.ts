@@ -294,3 +294,19 @@ export interface AccessibilitySettings {
   screen_reader: boolean;
   keyboard_navigation: boolean;
 }
+
+export interface LessonPlan {
+  title: string;
+  objectives: string[];
+  lessons: Array<{
+    id: string;
+    title: string;
+    duration: number;
+    activities: string[];
+    resources: string[];
+    assessment: string;
+  }>;
+  totalDuration: number;
+  materials: string[];
+  differentiation: string[];
+}

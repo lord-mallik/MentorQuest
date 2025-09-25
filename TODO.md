@@ -1,21 +1,32 @@
-# Classroom Detail Screen Enhancement TODO
+# AI Content Generator UI Implementation
 
-## Database Operations (src/lib/supabase.ts)
-- [x] Add `createClass` function to insert new classes with generated class_code
-- [x] Add `addStudentToClass` function to add students to classes
-- [x] Add `removeStudentFromClass` function to remove students from classes
-- [x] Add `deleteClass` function to delete classes and related data
+## Steps to Complete:
 
-## UI and Logic Updates (src/pages/Classroom.tsx)
-- [ ] Update `loadClasses` to map students with full user details (full_name, avatar_url)
-- [ ] Update `handleCreateClass` to use DB and reload classes
-- [ ] Update `handleAddStudent` to use DB and validate student ID
-- [ ] Update `handleRemoveStudent` to use DB
-- [ ] Update `handleDeleteClass` to use DB
-- [ ] Improve class details modal UI: display student names/avatars, better layout, loading states
+### 1. Create src/pages/ContentGenerator.tsx
+   - Develop the main React component for the AI Content Generator page.
+   - Include form for selecting content type (Lesson Plan or Quiz), subject, grade level, topic/syllabus, difficulty.
+   - Add loading states, error handling, and display area for generated content.
+   - Integrate with aiService for generating lesson plans and quizzes.
+   - Use existing UI components (Card, Input, Button, etc.) for consistency.
+   - Add options to save/export generated content (initially console.log, later integrate with Supabase if needed).
 
-## Testing and Verification
-- [ ] Test create class functionality
-- [ ] Test add/remove students
-- [ ] Test delete class
-- [ ] Verify UI displays correctly with real data
+### 2. Update src/App.tsx
+   - Import the new ContentGenerator component.
+   - Replace the placeholder div in the "/content-generator" route with the actual component.
+
+### 3. Test AI Integration
+   - Ensure aiService.generateLessonPlan and aiService.generateQuizQuestions work correctly.
+   - Handle API errors and fallbacks.
+   - Verify form submission triggers generation.
+
+### 4. Add Error Handling and Loading States
+   - Implement LoadingSpinner during generation.
+   - Show error messages for failed generations.
+   - Ensure responsive design with Tailwind classes.
+
+### 5. Verify and Complete
+   - Test the full flow: form input -> generation -> display.
+   - Update TODO.md as steps complete.
+   - Ensure no breaking changes to existing code.
+
+Progress: None completed yet.

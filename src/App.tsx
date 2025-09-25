@@ -10,11 +10,13 @@ import AITutor from './pages/AITutor';
 import Quizzes from './pages/Quizzes';
 import Wellness from './pages/Wellness';
 import Auth from './pages/Auth';
+import Analytics from './pages/Analytics';
 import AchievementSystem from './components/Achievements/AchievementSystem';
 import AdminDashboard from './pages/AdminDashboard';
 import Progress from './pages/Progress';
 import Profile from './pages/Profile';
 import Classroom from './pages/Classroom';
+import ContentGenerator from './pages/ContentGenerator';
 import './lib/i18n';
 import { useContext, useEffect } from 'react';
 
@@ -41,7 +43,7 @@ function AuthWatcher() {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
- 
+
   useEffect(() => {
     console.log('AuthWatcher: supabaseUser changed ->', auth?.supabaseUser);
     // Only redirect to dashboard if we're on the root path or auth page
@@ -50,7 +52,7 @@ function AuthWatcher() {
       navigate('/dashboard', { replace: true });
     }
   }, [auth?.supabaseUser, navigate, location.pathname]);
- 
+
   return null;
 }
 
@@ -75,8 +77,8 @@ function AppContent() {
                   <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/admin" element={
-                    auth.supabaseUser.user_metadata.role === 'admin' 
-                      ? <AdminDashboard /> 
+                    auth.supabaseUser.user_metadata.role === 'admin'
+                      ? <AdminDashboard />
                       : <Navigate to="/dashboard" replace />
                   } />
                   <Route path="/ai-tutor" element={<AITutor />} />
@@ -86,8 +88,8 @@ function AppContent() {
                   <Route path="/leaderboard" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Leaderboard</h2><p className="text-gray-600 mt-2">Coming Soon - Compete with classmates and friends</p></div>} />
                   <Route path="/achievements" element={<AchievementSystem />} />
                   <Route path="/classroom" element={<Classroom />} />
-                  <Route path="/content-generator" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">AI Content Generator</h2><p className="text-gray-600 mt-2">Coming Soon - Create lessons and quizzes with AI</p></div>} />
-                  <Route path="/analytics" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2><p className="text-gray-600 mt-2">Coming Soon - Detailed performance insights</p></div>} />
+                  <Route path="/content-generator" element={<ContentGenerator />} />
+                  <Route path="/analytics" element={<Analytics />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/settings" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Settings</h2><p className="text-gray-600 mt-2">Coming Soon - Customize your learning experience</p></div>} />
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
