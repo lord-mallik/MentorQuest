@@ -60,7 +60,7 @@ npm run deploy
    ```bash
    vercel env add VITE_SUPABASE_URL production
    vercel env add VITE_SUPABASE_ANON_KEY production
-   vercel env add VITE_HUGGINGFACE_API_KEY production
+   vercel env add VITE_GEMINI_API_KEY production
    vercel env add VITE_LIBRETRANSLATE_API_URL production
    vercel env add VITE_APP_NAME production
    vercel env add VITE_APP_VERSION production
@@ -181,7 +181,7 @@ VITE_SUPABASE_ANON_KEY=your-production-anon-key
 
 #### Optional Variables
 ```env
-VITE_HUGGINGFACE_API_KEY=your-huggingface-key
+VITE_GEMINI_API_KEY=your-google-ai-api-key
 VITE_LIBRETRANSLATE_API_URL=https://libretranslate.de
 VITE_APP_NAME=MentorQuest
 VITE_APP_VERSION=1.0.0
@@ -202,7 +202,7 @@ VITE_APP_VERSION=1.0.0
      script-src 'self' 'unsafe-inline';
      style-src 'self' 'unsafe-inline';
      img-src 'self' data: https:;
-     connect-src 'self' https://*.supabase.co https://api-inference.huggingface.co;
+     connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com;
    ">
    ```
 

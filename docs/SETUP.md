@@ -78,11 +78,11 @@ cp .env.example .env
 VITE_SUPABASE_URL=https://your-project-id.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 
-# HuggingFace API (Optional - for enhanced AI features)
-VITE_HUGGINGFACE_API_KEY=your-huggingface-api-key
-
 # LibreTranslate API (Optional - for translation features)
 VITE_LIBRETRANSLATE_API_URL=https://libretranslate.de
+
+# Google Generative AI API (Optional - for enhanced AI features)
+VITE_GEMINI_API_KEY=your-google-ai-api-key
 
 # Application Settings
 VITE_APP_NAME=MentorQuest
@@ -93,12 +93,12 @@ VITE_APP_VERSION=1.0.0
 
 While the app works without these, you can enhance functionality by adding:
 
-**HuggingFace API Key (Free):**
-1. Go to [huggingface.co](https://huggingface.co)
-2. Sign up for a free account
-3. Go to Settings → Access Tokens
-4. Create a new token
-5. Add it to your `.env` file
+**Google Generative AI (Gemini) API Key (Free):**
+1. Go to Google AI Studio.
+2. Sign in with your Google account.
+3. Click on "Get API key" and create a new API key in a new project.
+4. Copy the key.
+5. Add it to your `.env` file as `VITE_GEMINI_API_KEY`.
 
 **LibreTranslate (Free):**
 - The default URL `https://libretranslate.de` is free to use
@@ -157,8 +157,8 @@ You can create demo accounts through the signup process, or use the authenticati
 
 **3. AI Features Not Working**
 - The app has fallback responses if AI APIs are unavailable
-- Check your HuggingFace API key if you added one
-- Ensure you're not hitting rate limits
+- Check your `VITE_GEMINI_API_KEY` if you added one.
+- Ensure you're not hitting API rate limits.
 
 **4. Build Errors**
 - Clear node_modules and reinstall: `rm -rf node_modules && npm install`

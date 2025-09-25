@@ -41,7 +41,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
   const markAsRead = async (notificationId: string) => {
     try {
       await db.markNotificationRead(notificationId);
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
       );
     } catch (error) {
@@ -99,7 +99,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
     }
   };
 
-  const filteredNotifications = notifications.filter(notification => 
+  const filteredNotifications = notifications.filter(notification =>
     filter === 'all' || !notification.read
   );
 
@@ -198,7 +198,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
             <div className="p-4 space-y-3">
               <AnimatePresence>
                 {filteredNotifications.map((notification) => {
-                  const Icon = getNotificationIcon(notification.notification_type);
+                  const Icon = getNotificationIcon(notification.type);
                   return (
                     <motion.div
                       key={notification.id}
@@ -213,11 +213,11 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
                     >
                       <div className="flex items-start space-x-3">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          getNotificationColor(notification.notification_type)
+                          getNotificationColor(notification.type)
                         }`}>
                           <Icon className="w-4 h-4" />
                         </div>
-                        
+
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-gray-900 mb-1">
                             {notification.title}
@@ -229,7 +229,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
                             {new Date(notification.created_at).toLocaleString()}
                           </p>
                         </div>
-                        
+
                         <div className="flex items-center space-x-1">
                           {!notification.read && (
                             <button
@@ -249,7 +249,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
                           </button>
                         </div>
                       </div>
-                      
+
                       {notification.action_url && (
                         <div className="mt-3 pt-3 border-t border-gray-200">
                           <button className="text-sm text-primary-600 hover:text-primary-700 font-medium">

@@ -6,6 +6,7 @@ import { Hop as Home, Brain, BookOpen, TrendingUp, Heart, User, Settings, Users,
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'sonner';
 import { useGamification } from '../../hooks/useGamification';
+import NotificationCenter from '../Notifications/NotificationCenter';
 
 const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -14,6 +15,7 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const studentNavItems = [
     { path: '/dashboard', icon: Home, label: t('dashboard') },
@@ -65,7 +67,7 @@ const Navbar: React.FC = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/dashboard" className="flex items-center space-x-3 group">
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-glow-primary"
               >
@@ -118,7 +120,7 @@ const Navbar: React.FC = () => {
                   <span className="text-xs">Offline</span>
                 </div>
               )}
-              
+
               {/* Notifications */}
               <button
                 onClick={() => setShowNotifications(true)}
@@ -130,7 +132,7 @@ const Navbar: React.FC = () => {
 
               {/* XP and Level (Students only) */}
               {supabaseUser?.user_metadata?.role === 'student' && profile && (
-                <motion.div 
+                <motion.div
                   whileHover={{ scale: 1.05 }}
                   className="flex items-center space-x-3 bg-white border border-neutral-200 px-4 py-2 rounded-xl shadow-sm"
                 >
@@ -175,14 +177,14 @@ const Navbar: React.FC = () => {
                     {supabaseUser?.user_metadata?.full_name || supabaseUser?.email || 'User'}
                   </span>
                 </Link>
-                
+
                 <Link
                   to="/settings"
                   className="p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg transition-colors"
                 >
                   <Settings className="w-5 h-5" />
                 </Link>
-                
+
                 <button
                   onClick={handleSignOut}
                   className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -202,7 +204,7 @@ const Navbar: React.FC = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/dashboard" className="flex items-center space-x-2 group">
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center shadow-glow-primary"
               >
@@ -218,14 +220,14 @@ const Navbar: React.FC = () => {
               {!connectionStatus.connected && (
                 <AlertCircle className="w-5 h-5 text-yellow-600" />
               )}
-              
+
               {/* XP Display for Mobile Students */}
               {supabaseUser?.user_metadata?.role === 'student' && profile && (
                 <div className="text-xs text-gray-600">
                   L{profile.level} • {profile.xp}XP
                 </div>
               )}
-              
+
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -265,9 +267,9 @@ const Navbar: React.FC = () => {
                     </Link>
                   );
                 })}
-                
+
                 <hr className="my-4" />
-                
+
                 {/* Language Selector for Mobile */}
                 <div className="px-3 py-2">
                   <label className="block text-xs font-medium text-gray-700 mb-1">Language</label>
@@ -286,7 +288,7 @@ const Navbar: React.FC = () => {
                     <option value="hi">हिन्दी</option>
                   </select>
                 </div>
-                
+
                 <Link
                   to="/profile"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -295,7 +297,7 @@ const Navbar: React.FC = () => {
                   <User className="w-5 h-5" />
                   <span>{t('profile')}</span>
                 </Link>
-                
+
                 <button
                   onClick={handleSignOut}
                   className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors w-full text-left"
@@ -311,6 +313,12 @@ const Navbar: React.FC = () => {
 
       {/* Spacer for fixed navbar */}
       <div className="h-16"></div>
+
+      {/* Notification Center */}
+      <NotificationCenter
+        isOpen={showNotifications}
+        onClose={() => setShowNotifications(false)}
+      />
     </>
   );
 };

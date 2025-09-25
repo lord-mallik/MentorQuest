@@ -61,7 +61,7 @@ npm run dev
 
 ### AI & ML Services (All Free)
 
-- **HuggingFace Inference API** for AI tutoring
+- **Google Generative AI (Gemini)** for AI tutoring and content generation
 - **Web Speech API** for voice features
 - **LibreTranslate** for multilingual support
 
@@ -91,13 +91,13 @@ Edit `.env` with your Supabase credentials:
 ```env
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_HUGGINGFACE_API_KEY=your-key (optional)
 VITE_LIBRETRANSLATE_API_URL=https://libretranslate.de
+VITE_GEMINI_API_KEY=your-google-ai-api-key (optional)
 ```
 
 #### 3. Database Setup
 
-**Option A: Using npm scripts (recommended)**
+**Using npm scripts (recommended)**
 ```bash
 npm run db:migrate  # Create schema
 npm run db:seed     # Add demo data
@@ -303,4 +303,3 @@ For support and questions:
 **MentorQuest** - Empowering education through AI and open-source technology! 🚀📚
 
 Built with ❤️ using React, TypeScript, Supabase, and HuggingFace
-
