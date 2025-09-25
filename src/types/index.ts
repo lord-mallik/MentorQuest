@@ -9,6 +9,25 @@ export interface User {
   preferences: UserPreferences;
 }
 
+export interface AdminProfile {
+  id: string;
+  user_id: string;
+  permissions: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SystemMetrics {
+  total_users: number;
+  total_students: number;
+  total_teachers: number;
+  total_courses: number;
+  total_quizzes: number;
+  active_sessions: number;
+  completion_rate: number;
+  engagement_score: number;
+}
+
 export interface UserPreferences {
   language: string;
   theme: 'light' | 'dark' | 'auto';
@@ -50,16 +69,14 @@ export interface ClassRoom {
   name: string;
   subject: string;
   teacher_id: string;
-  students: string[]; // Computed field
+  students: (string | User)[]; // Student IDs or full user details
   description: string;
   class_code: string;
   active: boolean;
   created_at: string;
   updated_at: string;
   class_students?: Array<{
-    users?: {
-      id: string;
-    };
+    users?: User;
   }>;
 }
 
@@ -121,6 +138,21 @@ export interface QuizAttempt {
   id: string;
   quiz_id: string;
   student_id: string;
+  answers: Record<string, string>;
+  score: number;
+  max_score: number;
+  percentage: number;
+  completed_at: string;
+  time_taken: number;
+  xp_earned: number;
+}
+
+export interface QuizResult {
+  id: string;
+  quiz_id: string;
+  student_id: string;
+  title: string;
+  subject: string;
   answers: Record<string, string>;
   score: number;
   max_score: number;
@@ -261,4 +293,20 @@ export interface AccessibilitySettings {
   reduced_motion: boolean;
   screen_reader: boolean;
   keyboard_navigation: boolean;
+}
+
+export interface LessonPlan {
+  title: string;
+  objectives: string[];
+  lessons: Array<{
+    id: string;
+    title: string;
+    duration: number;
+    activities: string[];
+    resources: string[];
+    assessment: string;
+  }>;
+  totalDuration: number;
+  materials: string[];
+  differentiation: string[];
 }

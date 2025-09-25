@@ -2,7 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-// Translation resources
+// Combined translations
 const resources = {
   en: {
     translation: {
@@ -12,14 +12,27 @@ const resources = {
       quizzes: 'Quizzes',
       progress: 'Progress',
       wellness: 'Wellness',
-      profile: 'Profile',
+      profile: {
+        title: 'Profile',
+        subtitle: 'Manage your account and preferences',
+        personalInfo: 'Personal Information',
+        fullName: 'Full Name',
+        email: 'Email',
+        preferences: 'Preferences',
+        theme: 'Theme',
+        textSize: 'Text Size',
+        dyslexicFont: 'Dyslexic-friendly Font',
+        highContrast: 'High Contrast',
+        reducedMotion: 'Reduced Motion',
+        voiceEnabled: 'Voice Enabled',
+        saveChanges: 'Save Changes',
+      },
       settings: 'Settings',
       leaderboard: 'Leaderboard',
       classroom: 'Classroom',
-      
+
       // Common
       welcome: 'Welcome to MentorQuest',
-      loading: 'Loading...',
       error: 'Error',
       success: 'Success',
       cancel: 'Cancel',
@@ -31,7 +44,7 @@ const resources = {
       back: 'Back',
       next: 'Next',
       previous: 'Previous',
-      
+
       // Authentication
       signIn: 'Sign In',
       signUp: 'Sign Up',
@@ -43,7 +56,8 @@ const resources = {
       role: 'Role',
       student: 'Student',
       teacher: 'Teacher',
-      
+      admin: 'Admin',
+
       // Dashboard
       welcomeBack: 'Welcome back',
       todaysQuests: "Today's Quests",
@@ -52,7 +66,7 @@ const resources = {
       totalXP: 'Total XP',
       level: 'Level',
       achievements: 'Achievements',
-      
+
       // AI Tutor
       askQuestion: 'Ask a Question',
       questionPlaceholder: 'What would you like to learn about?',
@@ -65,7 +79,7 @@ const resources = {
       science: 'Science',
       history: 'History',
       english: 'English',
-      
+
       // Wellness
       moodCheckIn: 'Mood Check-in',
       howAreYouFeeling: 'How are you feeling today?',
@@ -77,14 +91,14 @@ const resources = {
       stressLevel: 'Stress Level',
       energyLevel: 'Energy Level',
       notes: 'Notes',
-      
+
       // Gamification
       xpEarned: 'XP Earned',
       levelUp: 'Level Up!',
       achievementUnlocked: 'Achievement Unlocked!',
       dailyQuest: 'Daily Quest',
       weeklyChallenge: 'Weekly Challenge',
-      
+
       // Settings
       language: 'Language',
       theme: 'Theme',
@@ -98,17 +112,80 @@ const resources = {
       textSize: 'Text Size',
       small: 'Small',
       large: 'Large',
-      
+
       // Errors
       somethingWentWrong: 'Something went wrong',
       tryAgain: 'Try again',
       networkError: 'Network error. Please check your connection.',
-      
+
       // Success messages
       profileUpdated: 'Profile updated successfully',
       questionSubmitted: 'Question submitted successfully',
       quizCompleted: 'Quiz completed successfully',
-      wellnessRecorded: 'Wellness data recorded successfully'
+      wellnessRecorded: 'Wellness data recorded successfully',
+
+      loading: {
+        general: 'Loading...',
+        progress: 'Loading your progress data...'
+      },
+      progressSection: {
+        title: 'Progress Tracking',
+        subtitle: 'Track your learning journey and academic achievements',
+        averageScore: 'Average Score',
+        totalStudyTime: 'Total Study Time',
+        completedLessons: 'Completed Lessons',
+        quizzesCompleted: 'Quizzes Completed',
+        subjectProgress: 'Subject Progress',
+        lessons: 'lessons',
+        complete: 'complete',
+        avgScore: 'Avg. Score',
+        spent: 'spent',
+        lastActivity: 'Last activity',
+        noSubjectsFound: 'No subjects found for the selected filters',
+        recentStudySessions: 'Recent Study Sessions',
+        duration: 'Duration',
+        focusScore: 'Focus Score',
+        breaksTaken: 'Breaks Taken',
+        xpEarned: 'XP Earned',
+        noStudySessionsFound: 'No study sessions found',
+        quizResults: 'Quiz Results',
+        score: 'Score',
+        timeTaken: 'Time Taken',
+        noQuizResultsFound: 'No quiz results found',
+        correct: 'correct',
+        reviewQuiz: 'Review Quiz'
+      },
+      time: {
+        week: 'Week',
+        month: 'Month',
+        year: 'Year',
+        hours: 'h',
+        minutes: 'm',
+        secondsAgo: '{{count}} seconds ago',
+        minutesAgo: '{{count}} minutes ago',
+        hoursAgo: '{{count}} hours ago',
+        daysAgo: '{{count}} days ago'
+      },
+      subjects: {
+        all: 'All Subjects',
+        mathematics: 'Mathematics',
+        science: 'Science',
+        history: 'History',
+        english: 'English',
+        physics: 'Physics',
+        chemistry: 'Chemistry',
+        biology: 'Biology',
+        geography: 'Geography',
+        literature: 'Literature',
+        computerScience: 'Computer Science'
+      },
+      quizzesSection: {
+        algebraFundamentals: 'Algebra Fundamentals',
+        cellBiology: 'Cell Biology',
+        worldWar2: 'World War II',
+        literaryDevices: 'Literary Devices',
+        pythonBasics: 'Python Basics'
+      }
     }
   },
   es: {
@@ -118,13 +195,26 @@ const resources = {
       quizzes: 'Cuestionarios',
       progress: 'Progreso',
       wellness: 'Bienestar',
-      profile: 'Perfil',
+      profile: {
+        title: 'Perfil',
+        subtitle: 'Gestiona tu cuenta y preferencias',
+        personalInfo: 'Información Personal',
+        fullName: 'Nombre Completo',
+        email: 'Correo Electrónico',
+        preferences: 'Preferencias',
+        theme: 'Tema',
+        textSize: 'Tamaño del Texto',
+        dyslexicFont: 'Fuente Amigable para Dislexia',
+        highContrast: 'Alto Contraste',
+        reducedMotion: 'Movimiento Reducido',
+        voiceEnabled: 'Voz Habilitada',
+        saveChanges: 'Guardar Cambios',
+      },
       settings: 'Configuración',
       leaderboard: 'Tabla de Clasificación',
       classroom: 'Aula',
-      
+
       welcome: 'Bienvenido a MentorQuest',
-      loading: 'Cargando...',
       error: 'Error',
       success: 'Éxito',
       cancel: 'Cancelar',
@@ -136,7 +226,7 @@ const resources = {
       back: 'Atrás',
       next: 'Siguiente',
       previous: 'Anterior',
-      
+
       signIn: 'Iniciar Sesión',
       signUp: 'Registrarse',
       signOut: 'Cerrar Sesión',
@@ -147,7 +237,7 @@ const resources = {
       role: 'Rol',
       student: 'Estudiante',
       teacher: 'Profesor',
-      
+
       welcomeBack: 'Bienvenido de vuelta',
       todaysQuests: 'Misiones de Hoy',
       recentActivity: 'Actividad Reciente',
@@ -155,7 +245,7 @@ const resources = {
       totalXP: 'XP Total',
       level: 'Nivel',
       achievements: 'Logros',
-      
+
       askQuestion: 'Hacer una Pregunta',
       questionPlaceholder: '¿Qué te gustaría aprender?',
       difficulty: 'Dificultad',
@@ -167,7 +257,7 @@ const resources = {
       science: 'Ciencias',
       history: 'Historia',
       english: 'Inglés',
-      
+
       moodCheckIn: 'Registro de Estado de Ánimo',
       howAreYouFeeling: '¿Cómo te sientes hoy?',
       veryHappy: 'Muy Feliz',
@@ -178,13 +268,13 @@ const resources = {
       stressLevel: 'Nivel de Estrés',
       energyLevel: 'Nivel de Energía',
       notes: 'Notas',
-      
+
       xpEarned: 'XP Ganado',
       levelUp: '¡Subiste de Nivel!',
       achievementUnlocked: '¡Logro Desbloqueado!',
       dailyQuest: 'Misión Diaria',
       weeklyChallenge: 'Desafío Semanal',
-      
+
       language: 'Idioma',
       theme: 'Tema',
       light: 'Claro',
@@ -197,15 +287,79 @@ const resources = {
       textSize: 'Tamaño de Texto',
       small: 'Pequeño',
       large: 'Grande',
-      
+
       somethingWentWrong: 'Algo salió mal',
       tryAgain: 'Intentar de nuevo',
       networkError: 'Error de red. Por favor verifica tu conexión.',
-      
+
       profileUpdated: 'Perfil actualizado exitosamente',
       questionSubmitted: 'Pregunta enviada exitosamente',
       quizCompleted: 'Cuestionario completado exitosamente',
-      wellnessRecorded: 'Datos de bienestar registrados exitosamente'
+      wellnessRecorded: 'Datos de bienestar registrados exitosamente',
+
+      // --- Extra from second file ---
+      loading: {
+        general: 'Cargando...',
+        progress: 'Cargando tus datos de progreso...'
+      },
+      progressSection: {
+        title: 'Seguimiento de Progreso',
+        subtitle: 'Sigue tu viaje de aprendizaje y logros académicos',
+        averageScore: 'Puntuación Media',
+        totalStudyTime: 'Tiempo Total de Estudio',
+        completedLessons: 'Lecciones Completadas',
+        quizzesCompleted: 'Cuestionarios Completados',
+        subjectProgress: 'Progreso por Asignatura',
+        lessons: 'lecciones',
+        complete: 'completo',
+        avgScore: 'Punt. Media',
+        spent: 'dedicado',
+        lastActivity: 'Última actividad',
+        noSubjectsFound: 'No se encontraron asignaturas para los filtros seleccionados',
+        recentStudySessions: 'Sesiones de Estudio Recientes',
+        duration: 'Duración',
+        focusScore: 'Puntuación de Enfoque',
+        breaksTaken: 'Descansos Tomados',
+        xpEarned: 'XP Ganado',
+        noStudySessionsFound: 'No se encontraron sesiones de estudio',
+        quizResults: 'Resultados de Cuestionarios',
+        score: 'Puntuación',
+        timeTaken: 'Tiempo Empleado',
+        noQuizResultsFound: 'No se encontraron resultados de cuestionarios',
+        correct: 'correctas',
+        reviewQuiz: 'Revisar Cuestionario'
+      },
+      time: {
+        week: 'Semana',
+        month: 'Mes',
+        year: 'Año',
+        hours: 'h',
+        minutes: 'm',
+        secondsAgo: 'hace {{count}} segundos',
+        minutesAgo: 'hace {{count}} minutos',
+        hoursAgo: 'hace {{count}} horas',
+        daysAgo: 'hace {{count}} días'
+      },
+      subjects: {
+        all: 'Todas las Asignaturas',
+        mathematics: 'Matemáticas',
+        science: 'Ciencias',
+        history: 'Historia',
+        english: 'Inglés',
+        physics: 'Física',
+        chemistry: 'Química',
+        biology: 'Biología',
+        geography: 'Geografía',
+        literature: 'Literatura',
+        computerScience: 'Informática'
+      },
+      quizzesSection: {
+        algebraFundamentals: 'Fundamentos de Álgebra',
+        cellBiology: 'Biología Celular',
+        worldWar2: 'Segunda Guerra Mundial',
+        literaryDevices: 'Recursos Literarios',
+        pythonBasics: 'Fundamentos de Python'
+      }
     }
   },
   fr: {
@@ -215,17 +369,29 @@ const resources = {
       quizzes: 'Quiz',
       progress: 'Progrès',
       wellness: 'Bien-être',
-      profile: 'Profil',
+      profile: {
+        title: 'Profil',
+        subtitle: 'Gérez votre compte et vos préférences',
+        personalInfo: 'Informations Personnelles',
+        fullName: 'Nom Complet',
+        email: 'E-mail',
+        preferences: 'Préférences',
+        theme: 'Thème',
+        textSize: 'Taille du Texte',
+        dyslexicFont: 'Police pour Dyslexiques',
+        highContrast: 'Contraste Élevé',
+        reducedMotion: 'Mouvement Réduit',
+        voiceEnabled: 'Voix Activée',
+        saveChanges: 'Enregistrer les Modifications',
+      },
       settings: 'Paramètres',
       leaderboard: 'Classement',
       classroom: 'Salle de Classe',
-      
-      welcome: 'Bienvenue à MentorQuest',
-      loading: 'Chargement...',
+      welcome: 'Bienvenue sur MentorQuest',
       error: 'Erreur',
       success: 'Succès',
       cancel: 'Annuler',
-      save: 'Sauvegarder',
+      save: 'Enregistrer',
       delete: 'Supprimer',
       edit: 'Modifier',
       create: 'Créer',
@@ -233,28 +399,26 @@ const resources = {
       back: 'Retour',
       next: 'Suivant',
       previous: 'Précédent',
-      
       signIn: 'Se Connecter',
-      signUp: "S'inscrire",
+      signUp: 'S\'inscrire',
       signOut: 'Se Déconnecter',
-      email: 'Email',
-      password: 'Mot de Passe',
-      confirmPassword: 'Confirmer le Mot de Passe',
+      email: 'E-mail',
+      password: 'Mot de passe',
+      confirmPassword: 'Confirmer le mot de passe',
       fullName: 'Nom Complet',
       role: 'Rôle',
       student: 'Étudiant',
-      teacher: 'Professeur',
-      
+      teacher: 'Enseignant',
+      admin: 'Admin',
       welcomeBack: 'Bon retour',
-      todaysQuests: "Quêtes d'Aujourd'hui",
+      todaysQuests: 'Quêtes du Jour',
       recentActivity: 'Activité Récente',
-      studyStreak: "Série d'Études",
+      studyStreak: 'Série d\'Études',
       totalXP: 'XP Total',
       level: 'Niveau',
-      achievements: 'Réalisations',
-      
+      achievements: 'Succès',
       askQuestion: 'Poser une Question',
-      questionPlaceholder: "Qu'aimeriez-vous apprendre?",
+      questionPlaceholder: 'Sur quoi souhaitez-vous en savoir plus ?',
       difficulty: 'Difficulté',
       easy: 'Facile',
       medium: 'Moyen',
@@ -264,45 +428,102 @@ const resources = {
       science: 'Sciences',
       history: 'Histoire',
       english: 'Anglais',
-      
-      moodCheckIn: "Vérification de l'Humeur",
-      howAreYouFeeling: 'Comment vous sentez-vous aujourd\'hui?',
+      moodCheckIn: 'Bilan d\'Humeur',
+      howAreYouFeeling: 'Comment vous sentez-vous aujourd\'hui ?',
       veryHappy: 'Très Heureux',
       happy: 'Heureux',
       neutral: 'Neutre',
       sad: 'Triste',
       verySad: 'Très Triste',
       stressLevel: 'Niveau de Stress',
-      energyLevel: "Niveau d'Énergie",
+      energyLevel: 'Niveau d\'Énergie',
       notes: 'Notes',
-      
-      xpEarned: 'XP Gagné',
-      levelUp: 'Niveau Supérieur!',
-      achievementUnlocked: 'Réalisation Débloquée!',
+      xpEarned: 'XP Gagnés',
+      levelUp: 'Niveau Supérieur !',
+      achievementUnlocked: 'Succès Débloqué !',
       dailyQuest: 'Quête Quotidienne',
       weeklyChallenge: 'Défi Hebdomadaire',
-      
       language: 'Langue',
       theme: 'Thème',
       light: 'Clair',
       dark: 'Sombre',
-      auto: 'Automatique',
+      auto: 'Auto',
       accessibility: 'Accessibilité',
-      dyslexicFont: 'Police Adaptée à la Dyslexie',
+      dyslexicFont: 'Police pour Dyslexiques',
       highContrast: 'Contraste Élevé',
       reducedMotion: 'Mouvement Réduit',
       textSize: 'Taille du Texte',
       small: 'Petit',
       large: 'Grand',
-      
-      somethingWentWrong: "Quelque chose s'est mal passé",
+      somethingWentWrong: 'Quelque chose s\'est mal passé',
       tryAgain: 'Réessayer',
       networkError: 'Erreur réseau. Veuillez vérifier votre connexion.',
-      
       profileUpdated: 'Profil mis à jour avec succès',
       questionSubmitted: 'Question soumise avec succès',
       quizCompleted: 'Quiz terminé avec succès',
-      wellnessRecorded: 'Données de bien-être enregistrées avec succès'
+      wellnessRecorded: 'Données de bien-être enregistrées avec succès',
+      loading: {
+        general: 'Chargement...',
+        progress: 'Chargement de vos données de progression...'
+      },
+      progressSection: {
+        title: 'Suivi de Progression',
+        subtitle: 'Suivez votre parcours d\'apprentissage et vos réussites académiques',
+        averageScore: 'Score Moyen',
+        totalStudyTime: 'Temps d\'Étude Total',
+        completedLessons: 'Leçons Terminées',
+        quizzesCompleted: 'Quiz Terminés',
+        subjectProgress: 'Progrès par Matière',
+        lessons: 'leçons',
+        complete: 'terminé',
+        avgScore: 'Score Moy.',
+        spent: 'passé',
+        lastActivity: 'Dernière activité',
+        noSubjectsFound: 'Aucune matière trouvée pour les filtres sélectionnés',
+        recentStudySessions: 'Sessions d\'Étude Récentes',
+        duration: 'Durée',
+        focusScore: 'Score de Concentration',
+        breaksTaken: 'Pauses Prises',
+        xpEarned: 'XP Gagnés',
+        noStudySessionsFound: 'Aucune session d\'étude trouvée',
+        quizResults: 'Résultats des Quiz',
+        score: 'Score',
+        timeTaken: 'Temps Pris',
+        noQuizResultsFound: 'Aucun résultat de quiz trouvé',
+        correct: 'correctes',
+        reviewQuiz: 'Revoir le Quiz'
+      },
+      time: {
+        week: 'Semaine',
+        month: 'Mois',
+        year: 'Année',
+        hours: 'h',
+        minutes: 'm',
+        secondsAgo: 'il y a {{count}} secondes',
+        minutesAgo: 'il y a {{count}} minutes',
+        hoursAgo: 'il y a {{count}} heures',
+        daysAgo: 'il y a {{count}} jours'
+      },
+      subjects: {
+        all: 'Toutes les Matières',
+        mathematics: 'Mathématiques',
+        science: 'Sciences',
+        history: 'Histoire',
+        english: 'Anglais',
+        physics: 'Physique',
+        chemistry: 'Chimie',
+        biology: 'Biologie',
+        geography: 'Géographie',
+        literature: 'Littérature',
+        computerScience: 'Informatique'
+      },
+      quizzesSection: {
+        algebraFundamentals: 'Fondamentaux de l\'Algèbre',
+        cellBiology: 'Biologie Cellulaire',
+        worldWar2: 'Seconde Guerre Mondiale',
+        literaryDevices: 'Figures de Style',
+        pythonBasics: 'Bases de Python'
+      }
     }
   },
   de: {
@@ -312,13 +533,40 @@ const resources = {
       quizzes: 'Quiz',
       progress: 'Fortschritt',
       wellness: 'Wohlbefinden',
-      profile: 'Profil',
+      profile: {
+        title: 'Profil',
+        subtitle: 'Verwalten Sie Ihr Konto und Ihre Einstellungen',
+        personalInfo: 'Persönliche Informationen',
+        fullName: 'Vollständiger Name',
+        email: 'E-Mail',
+        preferences: 'Einstellungen',
+        theme: 'Thema',
+        textSize: 'Textgröße',
+        dyslexicFont: 'Legastheniker-freundliche Schriftart',
+        highContrast: 'Hoher Kontrast',
+        reducedMotion: 'Reduzierte Bewegung',
+        voiceEnabled: 'Sprachsteuerung aktiviert',
+        saveChanges: 'Änderungen speichern',
+      },
+      profilePage: {
+        title: 'Profil',
+        subtitle: 'Verwalten Sie Ihr Konto und Ihre Einstellungen',
+        personalInfo: 'Persönliche Informationen',
+        fullName: 'Vollständiger Name',
+        email: 'E-Mail',
+        preferences: 'Einstellungen',
+        theme: 'Thema',
+        textSize: 'Textgröße',
+        dyslexicFont: 'Legastheniker-freundliche Schriftart',
+        highContrast: 'Hoher Kontrast',
+        reducedMotion: 'Reduzierte Bewegung',
+        voiceEnabled: 'Sprachsteuerung aktiviert',
+        saveChanges: 'Änderungen speichern',
+      },
       settings: 'Einstellungen',
       leaderboard: 'Bestenliste',
       classroom: 'Klassenzimmer',
-      
       welcome: 'Willkommen bei MentorQuest',
-      loading: 'Laden...',
       error: 'Fehler',
       success: 'Erfolg',
       cancel: 'Abbrechen',
@@ -326,32 +574,30 @@ const resources = {
       delete: 'Löschen',
       edit: 'Bearbeiten',
       create: 'Erstellen',
-      submit: 'Senden',
+      submit: 'Einreichen',
       back: 'Zurück',
       next: 'Weiter',
-      previous: 'Vorherige',
-      
+      previous: 'Zurück',
       signIn: 'Anmelden',
       signUp: 'Registrieren',
       signOut: 'Abmelden',
       email: 'E-Mail',
       password: 'Passwort',
-      confirmPassword: 'Passwort Bestätigen',
+      confirmPassword: 'Passwort bestätigen',
       fullName: 'Vollständiger Name',
       role: 'Rolle',
-      student: 'Student',
-      teacher: 'Lehrer',
-      
+      student: 'Schüler/in',
+      teacher: 'Lehrer/in',
+      admin: 'Admin',
       welcomeBack: 'Willkommen zurück',
-      todaysQuests: 'Heutige Aufgaben',
-      recentActivity: 'Letzte Aktivität',
-      studyStreak: 'Lernserie',
-      totalXP: 'Gesamt XP',
+      todaysQuests: 'Heutige Quests',
+      recentActivity: 'Letzte Aktivitäten',
+      studyStreak: 'Lernsträhne',
+      totalXP: 'Gesamt-XP',
       level: 'Level',
       achievements: 'Erfolge',
-      
-      askQuestion: 'Frage Stellen',
-      questionPlaceholder: 'Was möchten Sie lernen?',
+      askQuestion: 'Frage stellen',
+      questionPlaceholder: 'Worüber möchtest du etwas lernen?',
       difficulty: 'Schwierigkeit',
       easy: 'Einfach',
       medium: 'Mittel',
@@ -361,9 +607,8 @@ const resources = {
       science: 'Wissenschaft',
       history: 'Geschichte',
       english: 'Englisch',
-      
-      moodCheckIn: 'Stimmungs-Check',
-      howAreYouFeeling: 'Wie fühlen Sie sich heute?',
+      moodCheckIn: 'Stimmungs-Check-in',
+      howAreYouFeeling: 'Wie fühlst du dich heute?',
       veryHappy: 'Sehr Glücklich',
       happy: 'Glücklich',
       neutral: 'Neutral',
@@ -372,65 +617,134 @@ const resources = {
       stressLevel: 'Stresslevel',
       energyLevel: 'Energielevel',
       notes: 'Notizen',
-      
       xpEarned: 'XP Verdient',
-      levelUp: 'Level Up!',
+      levelUp: 'Level Aufstieg!',
       achievementUnlocked: 'Erfolg Freigeschaltet!',
-      dailyQuest: 'Tägliche Aufgabe',
+      dailyQuest: 'Tägliche Quest',
       weeklyChallenge: 'Wöchentliche Herausforderung',
-      
       language: 'Sprache',
-      theme: 'Design',
+      theme: 'Thema',
       light: 'Hell',
       dark: 'Dunkel',
-      auto: 'Automatisch',
+      auto: 'Auto',
       accessibility: 'Barrierefreiheit',
-      dyslexicFont: 'Legasthenie-freundliche Schrift',
+      dyslexicFont: 'Legastheniker-freundliche Schriftart',
       highContrast: 'Hoher Kontrast',
       reducedMotion: 'Reduzierte Bewegung',
       textSize: 'Textgröße',
       small: 'Klein',
       large: 'Groß',
-      
-      somethingWentWrong: 'Etwas ist schief gelaufen',
+      somethingWentWrong: 'Etwas ist schiefgegangen',
       tryAgain: 'Erneut versuchen',
-      networkError: 'Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.',
-      
+      networkError: 'Netzwerkfehler. Bitte überprüfe deine Verbindung.',
       profileUpdated: 'Profil erfolgreich aktualisiert',
-      questionSubmitted: 'Frage erfolgreich eingereicht',
+      questionSubmitted: 'Frage erfolgreich übermittelt',
       quizCompleted: 'Quiz erfolgreich abgeschlossen',
-      wellnessRecorded: 'Wohlbefindensdaten erfolgreich aufgezeichnet'
+      wellnessRecorded: 'Wohlbefindensdaten erfolgreich erfasst',
+      loading: {
+        general: 'Wird geladen...',
+        progress: 'Lade deine Fortschrittsdaten...'
+      },
+      progressSection: {
+        title: 'Fortschrittsverfolgung',
+        subtitle: 'Verfolge deine Lernreise und akademischen Erfolge',
+        averageScore: 'Durchschnittsnote',
+        totalStudyTime: 'Gesamtlernzeit',
+        completedLessons: 'Abgeschlossene Lektionen',
+        quizzesCompleted: 'Abgeschlossene Quiz',
+        subjectProgress: 'Fortschritt nach Fach',
+        lessons: 'lektionen',
+        complete: 'abgeschlossen',
+        avgScore: 'Durchschn. Note',
+        spent: 'verbracht',
+        lastActivity: 'Letzte Aktivität',
+        noSubjectsFound: 'Keine Fächer für die ausgewählten Filter gefunden',
+        recentStudySessions: 'Letzte Lernsitzungen',
+        duration: 'Dauer',
+        focusScore: 'Fokus-Score',
+        breaksTaken: 'Pausen gemacht',
+        xpEarned: 'XP Verdient',
+        noStudySessionsFound: 'Keine Lernsitzungen gefunden',
+        quizResults: 'Quiz-Ergebnisse',
+        score: 'Punktzahl',
+        timeTaken: 'Benötigte Zeit',
+        noQuizResultsFound: 'Keine Quiz-Ergebnisse gefunden',
+        correct: 'richtig',
+        reviewQuiz: 'Quiz überprüfen'
+      },
+      time: {
+        week: 'Woche',
+        month: 'Monat',
+        year: 'Jahr',
+        hours: 'Std',
+        minutes: 'Min',
+        secondsAgo: 'vor {{count}} Sekunden',
+        minutesAgo: 'vor {{count}} Minuten',
+        hoursAgo: 'vor {{count}} Stunden',
+        daysAgo: 'vor {{count}} Tagen'
+      },
+      subjects: {
+        all: 'Alle Fächer',
+        mathematics: 'Mathematik',
+        science: 'Wissenschaft',
+        history: 'Geschichte',
+        english: 'Englisch',
+        physics: 'Physik',
+        chemistry: 'Chemie',
+        biology: 'Biologie',
+        geography: 'Geographie',
+        literature: 'Literatur',
+        computerScience: 'Informatik'
+      },
+      quizzesSection: {
+        algebraFundamentals: 'Grundlagen der Algebra',
+        cellBiology: 'Zellbiologie',
+        worldWar2: 'Zweiter Weltkrieg',
+        literaryDevices: 'Stilmittel',
+        pythonBasics: 'Python-Grundlagen'
+      }
     }
   },
   hi: {
     translation: {
       dashboard: 'डैशबोर्ड',
-      aiTutor: 'एआई शिक्षक',
+      aiTutor: 'एआई ट्यूटर',
       quizzes: 'प्रश्नोत्तरी',
       progress: 'प्रगति',
       wellness: 'कल्याण',
-      profile: 'प्रोफ़ाइल',
+      profilePage: {
+        title: 'प्रोफ़ाइल',
+        subtitle: 'अपना खाता और प्राथमिकताएँ प्रबंधित करें',
+        personalInfo: 'व्यक्तिगत जानकारी',
+        fullName: 'पूरा नाम',
+        email: 'ईमेल',
+        preferences: 'प्राथमिकताएँ',
+        theme: 'थीम',
+        textSize: 'टेक्स्ट का आकार',
+        dyslexicFont: 'डिस्लेक्सिक-अनुकूल फ़ॉन्ट',
+        highContrast: 'उच्च कंट्रास्ट',
+        reducedMotion: 'कम गति',
+        voiceEnabled: 'वॉइस सक्षम',
+        saveChanges: 'परिवर्तन सहेजें',
+      },
       settings: 'सेटिंग्स',
       leaderboard: 'लीडरबोर्ड',
       classroom: 'कक्षा',
-      
-      welcome: 'मेंटरक्वेस्ट में आपका स्वागत है',
-      loading: 'लोड हो रहा है...',
+      welcome: 'मेंटोरक्वेस्ट में आपका स्वागत है',
       error: 'त्रुटि',
       success: 'सफलता',
       cancel: 'रद्द करें',
-      save: 'सेव करें',
+      save: 'सहेजें',
       delete: 'हटाएं',
       edit: 'संपादित करें',
       create: 'बनाएं',
-      submit: 'जमा करें',
+      submit: 'प्रस्तुत करें',
       back: 'वापस',
       next: 'अगला',
       previous: 'पिछला',
-      
-      signIn: 'साइन इन',
-      signUp: 'साइन अप',
-      signOut: 'साइन आउट',
+      signIn: 'साइन इन करें',
+      signUp: 'साइन अप करें',
+      signOut: 'साइन आउट करें',
       email: 'ईमेल',
       password: 'पासवर्ड',
       confirmPassword: 'पासवर्ड की पुष्टि करें',
@@ -438,17 +752,16 @@ const resources = {
       role: 'भूमिका',
       student: 'छात्र',
       teacher: 'शिक्षक',
-      
+      admin: 'एडमिन',
       welcomeBack: 'वापसी पर स्वागत है',
-      todaysQuests: 'आज के मिशन',
+      todaysQuests: 'आज की खोज',
       recentActivity: 'हाल की गतिविधि',
-      studyStreak: 'अध्ययन श्रृंखला',
+      studyStreak: 'अध्ययन की लकीर',
       totalXP: 'कुल XP',
       level: 'स्तर',
       achievements: 'उपलब्धियां',
-      
       askQuestion: 'प्रश्न पूछें',
-      questionPlaceholder: 'आप क्या सीखना चाहते हैं?',
+      questionPlaceholder: 'आप क्या सीखना चाहेंगे?',
       difficulty: 'कठिनाई',
       easy: 'आसान',
       medium: 'मध्यम',
@@ -457,8 +770,7 @@ const resources = {
       mathematics: 'गणित',
       science: 'विज्ञान',
       history: 'इतिहास',
-      english: 'अंग्रेजी',
-      
+      english: 'अंग्रेज़ी',
       moodCheckIn: 'मूड चेक-इन',
       howAreYouFeeling: 'आज आप कैसा महसूस कर रहे हैं?',
       veryHappy: 'बहुत खुश',
@@ -468,35 +780,93 @@ const resources = {
       verySad: 'बहुत उदास',
       stressLevel: 'तनाव का स्तर',
       energyLevel: 'ऊर्जा का स्तर',
-      notes: 'नोट्स',
-      
+      notes: 'टिप्पणियाँ',
       xpEarned: 'XP अर्जित',
-      levelUp: 'लेवल अप!',
+      levelUp: 'स्तर ऊपर!',
       achievementUnlocked: 'उपलब्धि अनलॉक!',
-      dailyQuest: 'दैनिक मिशन',
+      dailyQuest: 'दैनिक खोज',
       weeklyChallenge: 'साप्ताहिक चुनौती',
-      
       language: 'भाषा',
       theme: 'थीम',
       light: 'हल्का',
       dark: 'गहरा',
-      auto: 'स्वचालित',
-      accessibility: 'पहुंच',
-      dyslexicFont: 'डिस्लेक्सिया-अनुकूल फ़ॉन्ट',
+      auto: 'ऑटो',
+      accessibility: 'सरल उपयोग',
+      dyslexicFont: 'डिस्लेक्सिक-अनुकूल फ़ॉन्ट',
       highContrast: 'उच्च कंट्रास्ट',
       reducedMotion: 'कम गति',
       textSize: 'टेक्स्ट का आकार',
       small: 'छोटा',
       large: 'बड़ा',
-      
-      somethingWentWrong: 'कुछ गलत हुआ',
-      tryAgain: 'फिर कोशिश करें',
+      somethingWentWrong: 'कुछ गलत हो गया',
+      tryAgain: 'पुनः प्रयास करें',
       networkError: 'नेटवर्क त्रुटि। कृपया अपना कनेक्शन जांचें।',
-      
       profileUpdated: 'प्रोफ़ाइल सफलतापूर्वक अपडेट की गई',
-      questionSubmitted: 'प्रश्न सफलतापूर्वक जमा किया गया',
-      quizCompleted: 'प्रश्नोत्तरी सफलतापूर्वक पूरी की गई',
-      wellnessRecorded: 'कल्याण डेटा सफलतापूर्वक रिकॉर्ड किया गया'
+      questionSubmitted: 'प्रश्न सफलतापूर्वक प्रस्तुत किया गया',
+      quizCompleted: 'प्रश्नोत्तरी सफलतापूर्वक पूरी हुई',
+      wellnessRecorded: 'कल्याण डेटा सफलतापूर्वक दर्ज किया गया',
+      loading: {
+        general: 'लोड हो रहा है...',
+        progress: 'आपकी प्रगति का डेटा लोड हो रहा है...'
+      },
+      progressSection: {
+        title: 'प्रगति ट्रैकिंग',
+        subtitle: 'अपनी सीखने की यात्रा और अकादमिक उपलब्धियों को ट्रैक करें',
+        averageScore: 'औसत स्कोर',
+        totalStudyTime: 'कुल अध्ययन समय',
+        completedLessons: 'पूर्ण पाठ',
+        quizzesCompleted: 'पूर्ण प्रश्नोत्तरी',
+        subjectProgress: 'विषयवार प्रगति',
+        lessons: 'पाठ',
+        complete: 'पूर्ण',
+        avgScore: 'औसत स्कोर',
+        spent: 'बिताया',
+        lastActivity: 'अंतिम गतिविधि',
+        noSubjectsFound: 'चयनित फ़िल्टर के लिए कोई विषय नहीं मिला',
+        recentStudySessions: 'हाल के अध्ययन सत्र',
+        duration: 'अवधि',
+        focusScore: 'फोकस स्कोर',
+        breaksTaken: 'लिए गए ब्रेक',
+        xpEarned: 'XP अर्जित',
+        noStudySessionsFound: 'कोई अध्ययन सत्र नहीं मिला',
+        quizResults: 'प्रश्नोत्तरी परिणाम',
+        score: 'स्कोर',
+        timeTaken: 'लिया गया समय',
+        noQuizResultsFound: 'कोई प्रश्नोत्तरी परिणाम नहीं मिला',
+        correct: 'सही',
+        reviewQuiz: 'प्रश्नोत्तरी की समीक्षा करें'
+      },
+      time: {
+        week: 'सप्ताह',
+        month: 'महीना',
+        year: 'वर्ष',
+        hours: 'घं',
+        minutes: 'मि',
+        secondsAgo: '{{count}} सेकंड पहले',
+        minutesAgo: '{{count}} मिनट पहले',
+        hoursAgo: '{{count}} घंटे पहले',
+        daysAgo: '{{count}} दिन पहले'
+      },
+      subjects: {
+        all: 'सभी विषय',
+        mathematics: 'गणित',
+        science: 'विज्ञान',
+        history: 'इतिहास',
+        english: 'अंग्रेज़ी',
+        physics: 'भौतिकी',
+        chemistry: 'रसायन विज्ञान',
+        biology: 'जीव विज्ञान',
+        geography: 'भूगोल',
+        literature: 'साहित्य',
+        computerScience: 'कंप्यूटर विज्ञान'
+      },
+      quizzesSection: {
+        algebraFundamentals: 'बीजगणित के मूल सिद्धांत',
+        cellBiology: 'कोशिका जीव विज्ञान',
+        worldWar2: 'द्वितीय विश्व युद्ध',
+        literaryDevices: 'साहित्यिक उपकरण',
+        pythonBasics: 'पाइथन की मूल बातें'
+      }
     }
   }
 };
@@ -508,11 +878,9 @@ i18n
     resources,
     fallbackLng: 'en',
     debug: false,
-    
     interpolation: {
       escapeValue: false
     },
-    
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage']

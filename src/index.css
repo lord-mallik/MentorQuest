@@ -1,5 +1,5 @@
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 @import "tailwindcss";
 
@@ -9,7 +9,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   
-  /* Enhanced Color Palette - Light Theme Only */
+  /* Enhanced Color Palette - Light Theme */
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
   --color-primary-200: #bfdbfe;
@@ -87,6 +87,7 @@
   --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-family-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
   --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-family-dyslexic: 'Atkinson Hyperlegible', sans-serif;
   
   /* Spacing Scale */
   --space-px: 1px;
@@ -130,6 +131,91 @@
   --glass-bg: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(255, 255, 255, 0.3);
   --glass-backdrop: blur(12px);
+  --font-size-base: 1rem;
+}
+
+.dark {
+  /* Dark Theme Color Palette */
+  --color-primary-50: #1e3a8a;
+  --color-primary-100: #1e40af;
+  --color-primary-200: #1d4ed8;
+  --color-primary-300: #2563eb;
+  --color-primary-400: #3b82f6;
+  --color-primary-500: #60a5fa;
+  --color-primary-600: #93c5fd;
+  --color-primary-700: #bfdbfe;
+  --color-primary-800: #dbeafe;
+  --color-primary-900: #eff6ff;
+  --color-primary-950: #f8fafc;
+  
+  --color-secondary-50: #4a044e;
+  --color-secondary-100: #701a75;
+  --color-secondary-200: #86198f;
+  --color-secondary-300: #a21caf;
+  --color-secondary-400: #c026d3;
+  --color-secondary-500: #d946ef;
+  --color-secondary-600: #e879f9;
+  --color-secondary-700: #f0abfc;
+  --color-secondary-800: #f5d0fe;
+  --color-secondary-900: #fae8ff;
+  --color-secondary-950: #fdf4ff;
+  
+  --color-accent-50: #022c22;
+  --color-accent-100: #064e3b;
+  --color-accent-200: #065f46;
+  --color-accent-300: #047857;
+  --color-accent-400: #059669;
+  --color-accent-500: #10b981;
+  --color-accent-600: #34d399;
+  --color-accent-700: #6ee7b7;
+  --color-accent-800: #a7f3d0;
+  --color-accent-900: #d1fae5;
+  --color-accent-950: #ecfdf5;
+  
+  --color-warning-50: #451a03;
+  --color-warning-100: #78350f;
+  --color-warning-200: #92400e;
+  --color-warning-300: #b45309;
+  --color-warning-400: #d97706;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #fbbf24;
+  --color-warning-700: #fcd34d;
+  --color-warning-800: #fde68a;
+  --color-warning-900: #fef3c7;
+  --color-warning-950: #fffbeb;
+  
+  --color-error-50: #450a0a;
+  --color-error-100: #7f1d1d;
+  --color-error-200: #991b1b;
+  --color-error-300: #b91c1c;
+  --color-error-400: #dc2626;
+  --color-error-500: #ef4444;
+  --color-error-600: #f87171;
+  --color-error-700: #fca5a5;
+  --color-error-800: #fecaca;
+  --color-error-900: #fee2e2;
+  --color-error-950: #fef2f2;
+  
+  /* Neutral Colors - Dark */
+  --color-neutral-50: #0a0a0a;
+  --color-neutral-100: #171717;
+  --color-neutral-200: #262626;
+  --color-neutral-300: #404040;
+  --color-neutral-400: #525252;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #a3a3a3;
+  --color-neutral-700: #d4d4d4;
+  --color-neutral-800: #e5e5e5;
+  --color-neutral-900: #f5f5f5;
+  --color-neutral-950: #fafafa;
+  
+  /* Dark Theme Glassmorphism */
+  --glass-bg: rgba(15, 15, 15, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+html {
+  font-size: var(--font-size-base, 1rem);
 }
 
 #root {
@@ -137,57 +223,58 @@
   font-family: var(--font-family-sans);
   line-height: 1.6;
   color: var(--color-neutral-900);
-  background: #ffffff;
+  background: var(--color-neutral-50);
+  min-height: 100vh;
 }
 
 /* Custom Utilities */
-@utility glass-card {
+.glass-card {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-backdrop);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
 }
 
-@utility gradient-primary {
+.gradient-primary {
   background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
 }
 
-@utility gradient-accent {
+.gradient-accent {
   background: linear-gradient(135deg, var(--color-accent-600), var(--color-primary-600));
 }
 
-@utility gradient-warm {
+.gradient-warm {
   background: linear-gradient(135deg, var(--color-warning-500), var(--color-error-500));
 }
 
-@utility text-gradient-primary {
+.text-gradient-primary {
   background: linear-gradient(135deg, var(--color-primary-700), var(--color-secondary-700));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-@utility text-gradient-accent {
+.text-gradient-accent {
   background: linear-gradient(135deg, var(--color-accent-700), var(--color-primary-700));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-@utility shadow-glow-primary {
+.shadow-glow-primary {
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
 }
 
-@utility shadow-glow-secondary {
+.shadow-glow-secondary {
   box-shadow: 0 0 20px rgba(217, 70, 239, 0.25);
 }
 
-@utility shadow-glow-accent {
+.shadow-glow-accent {
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
 }
 
 /* Typography Classes */
-@utility heading-xl {
+.heading-xl {
   font-family: var(--font-family-display);
   font-size: 3rem;
   font-weight: 800;
@@ -196,7 +283,7 @@
   color: var(--color-neutral-900);
 }
 
-@utility heading-lg {
+.heading-lg {
   font-family: var(--font-family-display);
   font-size: 2.25rem;
   font-weight: 700;
@@ -205,7 +292,7 @@
   color: var(--color-neutral-900);
 }
 
-@utility heading-md {
+.heading-md {
   font-family: var(--font-family-display);
   font-size: 1.875rem;
   font-weight: 600;
@@ -213,7 +300,7 @@
   color: var(--color-neutral-900);
 }
 
-@utility heading-sm {
+.heading-sm {
   font-family: var(--font-family-display);
   font-size: 1.5rem;
   font-weight: 600;
@@ -221,7 +308,7 @@
   color: var(--color-neutral-900);
 }
 
-@utility heading-xs {
+.heading-xs {
   font-family: var(--font-family-display);
   font-size: 1.25rem;
   font-weight: 600;
@@ -229,49 +316,49 @@
   color: var(--color-neutral-900);
 }
 
-@utility body-lg {
+.body-lg {
   font-size: 1.125rem;
   font-weight: 400;
   line-height: 1.7;
   color: var(--color-neutral-800);
 }
 
-@utility body-base {
+.body-base {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.6;
   color: var(--color-neutral-800);
 }
 
-@utility body-sm {
+.body-sm {
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.5;
   color: var(--color-neutral-700);
 }
 
-@utility body-xs {
+.body-xs {
   font-size: 0.75rem;
   font-weight: 400;
   line-height: 1.4;
   color: var(--color-neutral-600);
 }
 
-@utility label-lg {
+.label-lg {
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.5;
   color: var(--color-neutral-800);
 }
 
-@utility label-base {
+.label-base {
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.4;
   color: var(--color-neutral-800);
 }
 
-@utility label-sm {
+.label-sm {
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.3;
@@ -408,7 +495,7 @@
 /* Input Styles - Enhanced for better contrast */
 .input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1rem 0.75rem 3rem;
   font-size: 0.875rem;
   line-height: 1.5;
   border: 1px solid var(--color-neutral-300);
@@ -445,19 +532,19 @@
 }
 
 /* Animation Classes */
-@utility animate-fade-in {
+.animate-fade-in {
   animation: fadeIn 0.5s ease-in-out;
 }
 
-@utility animate-slide-up {
+.animate-slide-up {
   animation: slideUp 0.5s ease-out;
 }
 
-@utility animate-bounce-gentle {
+.animate-bounce-gentle {
   animation: bounceGentle 2s infinite;
 }
 
-@utility animate-pulse-glow {
+.animate-pulse-glow {
   animation: pulseGlow 2s infinite;
 }
 
@@ -489,6 +576,62 @@
   50% { 
     box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
   }
+}
+
+/* Accessibility Features */
+
+/* Dyslexic Font */
+.dyslexic-font,
+.dyslexic-font * {
+  font-family: var(--font-family-dyslexic) !important;
+}
+
+/* High Contrast */
+.high-contrast {
+  filter: contrast(1.5) saturate(0.8);
+}
+
+.high-contrast {
+  --color-neutral-900: #000000;
+  --color-neutral-800: #111111;
+  --color-neutral-700: #222222;
+  --color-neutral-600: #333333;
+  --color-neutral-500: #444444;
+  --color-neutral-100: #ffffff;
+  --color-neutral-200: #f0f0f0;
+  --color-primary-500: #0000ff;
+  --color-primary-600: #0000cc;
+  --color-error-500: #ff0000;
+  --color-accent-500: #00ff00;
+}
+
+.high-contrast .card,
+.high-contrast .input,
+.high-contrast .btn-secondary {
+  border: 2px solid #000000 !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast .btn-primary {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+.high-contrast ::selection {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Reduced Motion */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transform: none !important;
 }
 
 /* Responsive Design Helpers */
