@@ -7,17 +7,17 @@ export const usePreferences = () => {
   const { supabaseUser } = useAuth();
   const { i18n } = useTranslation();
 
-  const preferences: UserPreferences = supabaseUser?.user_metadata?.preferences as UserPreferences || {
-    language: 'en',
-    theme: 'light',
-    dyslexic_font: false,
-    high_contrast: false,
-    reduced_motion: false,
-    text_size: 'medium',
-    voice_enabled: true,
-  };
-
   useEffect(() => {
+    const preferences: UserPreferences = supabaseUser?.user_metadata?.preferences as UserPreferences || {
+      language: 'en',
+      theme: 'light',
+      dyslexic_font: false,
+      high_contrast: false,
+      reduced_motion: false,
+      text_size: 'medium',
+      voice_enabled: true,
+    };
+
     // Language
     if (preferences.language && preferences.language !== i18n.language) {
       i18n.changeLanguage(preferences.language);
@@ -84,5 +84,5 @@ export const usePreferences = () => {
     // Voice enabled (for future TTS)
     html.style.setProperty('--voice-enabled', preferences.voice_enabled ? 'true' : 'false');
 
-  }, [preferences, i18n]);
+  }, [supabaseUser, i18n]);
 };

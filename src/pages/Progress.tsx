@@ -280,7 +280,7 @@ const Progress: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="label-base text-gray-600">{t('progress.totalStudyTime')}</p>
+              <p className="label-base text-gray-600">{t('progressSection.totalStudyTime')}</p>
               <p className="heading-md text-gray-900">
                 {formatTime(progressData.reduce((acc, curr) => acc + curr.time_spent, 0))}
               </p>
@@ -299,7 +299,7 @@ const Progress: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="label-base text-gray-600">{t('progress.completedLessons')}</p>
+              <p className="label-base text-gray-600">{t('progressSection.completedLessons')}</p>
               <p className="heading-md text-gray-900">
                 {progressData.reduce((acc, curr) => acc + curr.completed_lessons, 0)}
               </p>
@@ -318,7 +318,7 @@ const Progress: React.FC = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="label-base text-gray-600">{t('progress.quizzesCompleted')}</p>
+              <p className="label-base text-gray-600">{t('progressSection.quizzesCompleted')}</p>
               <p className="heading-md text-gray-900">{quizResults.length}</p>
             </div>
             <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center">
@@ -335,7 +335,7 @@ const Progress: React.FC = () => {
         transition={{ delay: 0.5 }}
         className="card p-6"
       >
-        <h2 className="heading-sm text-gray-900 mb-6">{t('progress.subjectProgress')}</h2>
+        <h2 className="heading-sm text-gray-900 mb-6">{t('progressSection.subjectProgress')}</h2>
         
         <div className="space-y-6">
           {filteredProgressData.map((subject) => (
@@ -358,10 +358,10 @@ const Progress: React.FC = () => {
                 </div>
               </div>
               <div className="pl-14 flex flex-wrap items-center justify-between text-sm text-gray-600">
-                <span>{subject.completed_lessons}/{subject.total_lessons} {t('progress.lessons')}</span>
-                <span className="text-gray-600">{t('progress.avgScore')}: {subject.average_score}%</span>
-                <span className="text-gray-600">{formatTime(subject.time_spent)} {t('progress.spent')}</span>
-                <span>{t('progress.lastActivity')}: {getTimeAgo(subject.last_activity)}</span>
+                <span>{subject.completed_lessons}/{subject.total_lessons} {t('progressSection.lessons')}</span>
+                <span className="text-gray-600">{t('progressSection.avgScore')}: {subject.average_score}%</span>
+                <span className="text-gray-600">{formatTime(subject.time_spent)} {t('progressSection.spent')}</span>
+                <span>{t('progressSection.lastActivity')}: {getTimeAgo(subject.last_activity)}</span>
               </div>
             </div>
           ))}
@@ -369,7 +369,7 @@ const Progress: React.FC = () => {
           {filteredProgressData.length === 0 && (
             <div className="text-center py-8">
               <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">{t('progress.noSubjectsFound')}</p>
+              <p className="text-gray-500">{t('progressSection.noSubjectsFound')}</p>
             </div>
           )}
         </div>
@@ -384,7 +384,7 @@ const Progress: React.FC = () => {
           transition={{ delay: 0.6 }}
           className="card p-6"
         >
-          <h2 className="heading-sm text-gray-900 mb-6">{t('progress.recentStudySessions')}</h2>
+          <h2 className="heading-sm text-gray-900 mb-6">{t('progressSection.recentStudySessions')}</h2>
           
           <div className="space-y-4">
             {studySessions.map((session) => (
@@ -400,19 +400,19 @@ const Progress: React.FC = () => {
                 </div>
                 <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
-                    <p className="text-xs text-gray-500">{t('progress.duration')}</p>
+                    <p className="text-xs text-gray-500">{t('progressSection.duration')}</p>
                     <p className="text-lg font-medium text-gray-800">{formatTime(session.duration_minutes)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">{t('progress.focusScore')}</p>
+                    <p className="text-xs text-gray-500">{t('progressSection.focusScore')}</p>
                     <p className="text-lg font-medium text-gray-800">{session.focus_score}%</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">{t('progress.breaksTaken')}</p>
+                    <p className="text-xs text-gray-500">{t('progressSection.breaksTaken')}</p>
                     <p className="text-lg font-medium text-gray-800">{session.breaks_taken}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">{t('progress.xpEarned')}</p>
+                    <p className="text-xs text-gray-500">{t('progressSection.xpEarned')}</p>
                     <p className="text-lg font-medium text-primary-600">+{session.xp_earned} XP</p>
                   </div>
                 </div>
@@ -422,7 +422,7 @@ const Progress: React.FC = () => {
             {studySessions.length === 0 && (
               <div className="text-center py-8">
                 <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">{t('progress.noStudySessionsFound')}</p>
+                <p className="text-gray-500">{t('progressSection.noStudySessionsFound')}</p>
               </div>
             )}
           </div>
@@ -435,7 +435,7 @@ const Progress: React.FC = () => {
           transition={{ delay: 0.7 }}
           className="card p-6"
         >
-          <h2 className="heading-sm text-gray-900 mb-6">{t('progress.quizResults')}</h2>
+          <h2 className="heading-sm text-gray-900 mb-6">{t('progressSection.quizResults')}</h2>
           
           <div className="space-y-4">
             {quizResults.map((quiz) => (
@@ -460,7 +460,7 @@ const Progress: React.FC = () => {
                         {quiz.percentage}%
                       </span>
                       <span className="text-sm text-gray-600">
-                        ({quiz.score}/{quiz.max_score} {t('progress.correct')})
+                        ({quiz.score}/{quiz.max_score} {t('progressSection.correct')})
                       </span>
                     </div>
                     <div className="flex items-center space-x-1">
@@ -485,7 +485,7 @@ const Progress: React.FC = () => {
                       <span className="text-sm font-medium text-primary-600">+{quiz.xp_earned} XP</span>
                     </div>
                     <button className="text-sm text-primary-600 hover:text-primary-700 flex items-center space-x-1">
-                      <span>{t('progress.reviewQuiz')}</span>
+                      <span>{t('progressSection.reviewQuiz')}</span>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
                       </svg>
@@ -498,7 +498,7 @@ const Progress: React.FC = () => {
             {quizResults.length === 0 && (
               <div className="text-center py-8">
                 <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">{t('progress.noQuizResultsFound')}</p>
+                <p className="text-gray-500">{t('progressSection.noQuizResultsFound')}</p>
               </div>
             )}
           </div>

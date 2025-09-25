@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Brain, Mail, Lock, User, UserCheck } from 'lucide-react';
+import { Eye, EyeOff, GraduationCap, Mail, Lock, User, UserCheck, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -10,6 +10,7 @@ const AuthForm: React.FC = () => {
   const { signIn, signUp } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: 'student@demo.com',
@@ -53,7 +54,7 @@ const AuthForm: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-neutral-50 to-secondary-50 px-4 relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-20">
+      <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
           backgroundImage: `radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.3) 0%, transparent 50%),
                            radial-gradient(circle at 80% 20%, rgba(217, 70, 239, 0.3) 0%, transparent 50%),
@@ -65,7 +66,7 @@ const AuthForm: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full space-y-8 relative z-10"
+        className="max-w-lg w-full space-y-8 relative z-10"
       >
         {/* Logo and Title */}
         <div className="text-center">
@@ -75,7 +76,7 @@ const AuthForm: React.FC = () => {
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="mx-auto w-20 h-20 gradient-primary rounded-3xl flex items-center justify-center mb-6 shadow-glow-primary"
           >
-            <Brain className="w-10 h-10 text-white" />
+            <GraduationCap className="w-10 h-10 text-white" />
           </motion.div>
           <motion.h2 
             initial={{ opacity: 0 }}
@@ -118,7 +119,7 @@ const AuthForm: React.FC = () => {
                     required
                     value={formData.fullName}
                     onChange={handleInputChange}
-                    className="input pl-10"
+                    className="input pl-25"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -139,7 +140,7 @@ const AuthForm: React.FC = () => {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="input pl-10"
+                  className="input pl-12"
                   placeholder="Enter your email"
                 />
               </div>
@@ -159,7 +160,7 @@ const AuthForm: React.FC = () => {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="input pl-10 pr-10"
+                  className="input pl-12 pr-10"
                   placeholder="Enter your password"
                 />
                 <button
@@ -172,6 +173,19 @@ const AuthForm: React.FC = () => {
               </div>
             </div>
 
+            {/* Forgot Password Link (Sign In only) */}
+            {!isSignUp && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => toast.info('Forgot password feature coming soon!')}
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
+
             {/* Confirm Password (Sign Up only) */}
             {isSignUp && (
               <div>
@@ -183,13 +197,20 @@ const AuthForm: React.FC = () => {
                   <input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showConfirmPassword ? 'text' : 'password'}
                     required
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="input pl-10"
+                    className="input pl-12 pr-10"
                     placeholder="Confirm your password"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
             )}
@@ -207,12 +228,13 @@ const AuthForm: React.FC = () => {
                     name="role"
                     value={formData.role}
                     onChange={handleInputChange}
-                    className="input pl-10 appearance-none"
+                    className="input pl-12 pr-10 appearance-none"
                   >
                     <option value="student">{t('student')}</option>
                     <option value="teacher">{t('teacher')}</option>
                     <option value="admin">Admin</option>
                   </select>
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 </div>
               </div>
             )}
@@ -250,13 +272,28 @@ const AuthForm: React.FC = () => {
           </div>
 
           {/* Demo Accounts */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-2 font-medium">Demo Accounts:</p>
-            <div className="space-y-1 text-xs text-gray-500">
-              <p><strong>Student:</strong> student@demo.com / password123</p>
-              <p><strong>Teacher:</strong> teacher@demo.com / password123</p>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-6 p-4 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-xl border border-primary-100"
+          >
+            <p className="text-sm text-primary-700 mb-3 font-semibold flex items-center">
+              <UserCheck className="w-4 h-4 mr-2" />
+              Demo Accounts
+            </p>
+            <div className="grid grid-cols-1 gap-2 text-xs">
+              <div className="flex justify-between items-center p-2 bg-white rounded-lg border">
+                <span className="font-medium text-neutral-700">Student</span>
+                <span className="text-neutral-500">student@demo.com</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-white rounded-lg border">
+                <span className="font-medium text-neutral-700">Teacher</span>
+                <span className="text-neutral-500">teacher@demo.com</span>
+              </div>
+              <p className="text-center text-neutral-400 text-xs mt-2">Password: password123</p>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       </motion.div>
     </div>

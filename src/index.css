@@ -495,7 +495,7 @@ html {
 /* Input Styles - Enhanced for better contrast */
 .input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1rem 0.75rem 3rem;
   font-size: 0.875rem;
   line-height: 1.5;
   border: 1px solid var(--color-neutral-300);

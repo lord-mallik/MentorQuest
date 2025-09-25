@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthContext, useAuth, useAuthProvider } from './hooks/useAuth';
+import { AuthContext, useAuthProvider } from './hooks/useAuth';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ConnectionStatus from './components/common/ConnectionStatus';
@@ -36,7 +36,6 @@ const queryClient = new QueryClient({
 });
 
 function AuthWatcher() {
-  const { supabaseUser } = useAuth();
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
@@ -82,13 +81,11 @@ function AppContent() {
                   <Route path="/quizzes" element={<Quizzes />} />
                   <Route path="/progress" element={<Progress />} />
                   <Route path="/wellness" element={<Wellness />} />
-                  <Route path="/leaderboard" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Leaderboard</h2><p className="text-gray-600 mt-2">Coming Soon - Compete with classmates and friends</p></div>} />
                   <Route path="/achievements" element={<AchievementSystem />} />
                   <Route path="/classroom" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Virtual Classroom</h2><p className="text-gray-600 mt-2">Coming Soon - Live sessions and collaboration</p></div>} />
                   <Route path="/content-generator" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">AI Content Generator</h2><p className="text-gray-600 mt-2">Coming Soon - Create lessons and quizzes with AI</p></div>} />
                   <Route path="/analytics" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2><p className="text-gray-600 mt-2">Coming Soon - Detailed performance insights</p></div>} />
                   <Route path="/profile" element={<Profile />} />
-                  <Route path="/settings" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Settings</h2><p className="text-gray-600 mt-2">Coming Soon - Customize your learning experience</p></div>} />
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </>
               ) : (

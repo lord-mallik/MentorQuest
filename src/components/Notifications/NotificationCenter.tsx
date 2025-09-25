@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, CircleCheck as CheckCircle, TriangleAlert as AlertTriangle, Info, Award, MessageSquare, Calendar, BookOpen, Users, Trash2, SquaresUnite as MarkAsUnread } from 'lucide-react';
+import { Bell, X, CircleCheck as CheckCircle, TriangleAlert as AlertTriangle, Info, Award, MessageSquare, Calendar, BookOpen, Users, Trash2 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { db } from '../../lib/supabase';
 import { Notification } from '../../types';
@@ -112,14 +112,14 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-end z-50 p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-end z-[60] p-4"
       onClick={onClose}
     >
       <motion.div
         initial={{ x: 400, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: 400, opacity: 0 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md h-full max-h-[90vh] flex flex-col"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md h-full max-h-[90vh] flex flex-col mt-20"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -198,7 +198,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
             <div className="p-4 space-y-3">
               <AnimatePresence>
                 {filteredNotifications.map((notification) => {
-                  const Icon = getNotificationIcon(notification.notification_type);
+                  const Icon = getNotificationIcon(notification.type);
                   return (
                     <motion.div
                       key={notification.id}
@@ -213,7 +213,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
                     >
                       <div className="flex items-start space-x-3">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          getNotificationColor(notification.notification_type)
+                          getNotificationColor(notification.type)
                         }`}>
                           <Icon className="w-4 h-4" />
                         </div>
