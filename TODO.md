@@ -1,49 +1,32 @@
-# Accessibility Features Implementation TODO
+# AI Content Generator UI Implementation
 
-## Overview
-Implementing the accessibility features: Light Theme, Medium Text Size, Dyslexic-friendly Font, High Contrast, Reduced Motion, and Voice Enabled. The UI and hook are already in place; focus on CSS styles to make them visually functional.
+## Steps to Complete:
 
-## Steps
+### 1. Create src/pages/ContentGenerator.tsx
+   - Develop the main React component for the AI Content Generator page.
+   - Include form for selecting content type (Lesson Plan or Quiz), subject, grade level, topic/syllabus, difficulty.
+   - Add loading states, error handling, and display area for generated content.
+   - Integrate with aiService for generating lesson plans and quizzes.
+   - Use existing UI components (Card, Input, Button, etc.) for consistency.
+   - Add options to save/export generated content (initially console.log, later integrate with Supabase if needed).
 
-### 1. Import Dyslexic-friendly Font
-- [x] Add import for Atkinson Hyperlegible font in src/index.css (dyslexia-friendly and highly legible).
-- Dependent: None.
-- Status: Completed.
+### 2. Update src/App.tsx
+   - Import the new ContentGenerator component.
+   - Replace the placeholder div in the "/content-generator" route with the actual component.
 
-### 2. Add CSS Variable for Base Font Size
-- [x] Define `html { font-size: var(--font-size-base, 1rem); }` in src/index.css to apply text size preference globally.
-- Dependent: usePreferences.ts already sets the var.
-- Status: Completed.
+### 3. Test AI Integration
+   - Ensure aiService.generateLessonPlan and aiService.generateQuizQuestions work correctly.
+   - Handle API errors and fallbacks.
+   - Verify form submission triggers generation.
 
-### 3. Implement Dyslexic Font Class
-- [x] Add `--font-family-dyslexic: 'Atkinson Hyperlegible', sans-serif;` in :root.
-- [x] Add `.dyslexic-font { font-family: var(--font-family-dyslexic) !important; }` to apply to all elements when class is on html.
-- Dependent: usePreferences.ts adds .dyslexic-font to html.
-- Status: Completed.
+### 4. Add Error Handling and Loading States
+   - Implement LoadingSpinner during generation.
+   - Show error messages for failed generations.
+   - Ensure responsive design with Tailwind classes.
 
-### 4. Implement High Contrast Class
-- [x] Add `.high-contrast` styles: Override colors for higher contrast (e.g., black text on white bg, stronger borders, etc.).
-- [x] Example: `.high-contrast { --color-neutral-900: #000; --color-neutral-100: #fff; filter: contrast(1.2); border-width: 2px on key elements; }`
-- Dependent: usePreferences.ts adds .high-contrast to html.
-- Status: Completed.
+### 5. Verify and Complete
+   - Test the full flow: form input -> generation -> display.
+   - Update TODO.md as steps complete.
+   - Ensure no breaking changes to existing code.
 
-### 5. Implement Reduced Motion Class
-- [x] Add `.reduced-motion *, .reduced-motion *::before, .reduced-motion *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }` to reinforce the media query.
-- Dependent: usePreferences.ts adds .reduced-motion to html; existing media query handles prefers-reduced-motion.
-- Status: Completed.
-
-### 6. Voice Enabled (Placeholder)
-- [x] The CSS var --voice-enabled is set in usePreferences.ts; no visual changes needed, but ensure it's available for future TTS JS integration.
-- Dependent: None (non-visual).
-- Status: Already functional as var.
-
-### 7. Testing and Verification
-- [] Toggle each preference in Profile.tsx and verify visual changes (e.g., run dev server, check browser).
-- [] Use browser dev tools to inspect html classes and styles.
-- [] Test with screen reader/voice if possible (future TTS).
-- Dependent: All above steps.
-- Status: Pending.
-
-## Follow-up
-- After all steps, remove this TODO.md or mark as complete.
-- If issues, update plan based on testing.
+Progress: None completed yet.
