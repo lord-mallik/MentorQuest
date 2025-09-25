@@ -1,6 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthContext, useAuthProvider } from './hooks/useAuth';
+import { AuthContext, useAuth, useAuthProvider } from './hooks/useAuth';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ConnectionStatus from './components/common/ConnectionStatus';
@@ -11,6 +11,7 @@ import Quizzes from './pages/Quizzes';
 import Wellness from './pages/Wellness';
 import Auth from './pages/Auth';
 import './lib/i18n';
+import { useContext, useEffect } from 'react';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,22 @@ const queryClient = new QueryClient({
   },
 });
 
+function AuthWatcher() {
+  const { supabaseUser } = useAuth();
+  const auth = useContext(AuthContext);
+  const navigate = useNavigate();
+ 
+  useEffect(() => {
+    console.log('AuthWatcher: supabaseUser changed ->', auth?.supabaseUser);
+    if (auth?.supabaseUser) {
+      console.log('AuthWatcher: navigating to /dashboard');
+      navigate('/dashboard', { replace: true });
+    }
+  }, [auth?.supabaseUser, navigate]);
+ 
+  return null;
+}
+
 function AppContent() {
   const auth = useAuthProvider();
 
@@ -42,6 +59,8 @@ function AppContent() {
       <AuthContext.Provider value={auth}>
         <ConnectionStatus />
         <Router>
+          <AuthWatcher />
+
           <Routes>
             <Route path="/" element={<Layout />}>
               {auth.supabaseUser ? (

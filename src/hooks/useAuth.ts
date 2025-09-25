@@ -99,12 +99,17 @@ export function useAuthProvider() {
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+
+      if (data.user) {
+        setSupabaseUser(data.user); // ✅ Update context state
+      }
+
     } catch (error: unknown) {
       console.error('Sign in error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
