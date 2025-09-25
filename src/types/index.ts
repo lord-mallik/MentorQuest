@@ -69,16 +69,14 @@ export interface ClassRoom {
   name: string;
   subject: string;
   teacher_id: string;
-  students: string[]; // Computed field
+  students: (string | User)[]; // Student IDs or full user details
   description: string;
   class_code: string;
   active: boolean;
   created_at: string;
   updated_at: string;
   class_students?: Array<{
-    users?: {
-      id: string;
-    };
+    users?: User;
   }>;
 }
 

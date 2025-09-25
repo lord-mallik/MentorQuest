@@ -495,6 +495,102 @@ export const db = {
     }
   },
 
+  async createClass(teacherId: string, classData: { name: string; subject: string; description: string; }) {
+    try {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let classCode = '';
+      for (let i = 0; i < 6; i++) {
+        classCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      const { data, error } = await (supabase as any)
+        .from('classes')
+        .insert({
+          ...classData,
+          teacher_id: teacherId,
+          class_code: classCode,
+          active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error: unknown) {
+      console.error('Error creating class:', error);
+      throw new Error('Failed to create class');
+    }
+  },
+
+  async addStudentToClass(classId: string, studentId: string) {
+    try {
+      const { data: student, error: studentError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', studentId)
+        .single();
+
+      if (studentError || !student) {
+        throw new Error('Student not found');
+      }
+
+      const { data, error } = await (supabase as any)
+        .from('class_students')
+        .insert({ class_id: classId, student_id: studentId })
+        .select()
+        .single();
+
+      if (error && error.code !== '23505') {
+        throw error;
+      }
+
+      return { success: true, data: data || null };
+    } catch (error: unknown) {
+      console.error('Error adding student to class:', error);
+      throw new Error('Failed to add student to class');
+    }
+  },
+
+  async removeStudentFromClass(classId: string, studentId: string) {
+    try {
+      const { error } = await (supabase as any)
+        .from('class_students')
+        .delete()
+        .eq('class_id', classId)
+        .eq('student_id', studentId);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error: unknown) {
+      console.error('Error removing student from class:', error);
+      throw new Error('Failed to remove student from class');
+    }
+  },
+
+  async deleteClass(classId: string) {
+    try {
+      const { error: deleteStudentsError } = await (supabase as any)
+        .from('class_students')
+        .delete()
+        .eq('class_id', classId);
+
+      if (deleteStudentsError) throw deleteStudentsError;
+
+      const { error } = await (supabase as any)
+        .from('classes')
+        .delete()
+        .eq('id', classId);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error: unknown) {
+      console.error('Error deleting class:', error);
+      throw new Error('Failed to delete class');
+    }
+  },
+
   // Daily quest operations
   async getDailyQuests(studentId: string) {
     try {

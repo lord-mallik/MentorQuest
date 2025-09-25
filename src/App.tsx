@@ -14,6 +14,7 @@ import AchievementSystem from './components/Achievements/AchievementSystem';
 import AdminDashboard from './pages/AdminDashboard';
 import Progress from './pages/Progress';
 import Profile from './pages/Profile';
+import Classroom from './pages/Classroom';
 import './lib/i18n';
 import { useContext, useEffect } from 'react';
 
@@ -84,7 +85,7 @@ function AppContent() {
                   <Route path="/wellness" element={<Wellness />} />
                   <Route path="/leaderboard" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Leaderboard</h2><p className="text-gray-600 mt-2">Coming Soon - Compete with classmates and friends</p></div>} />
                   <Route path="/achievements" element={<AchievementSystem />} />
-                  <Route path="/classroom" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Virtual Classroom</h2><p className="text-gray-600 mt-2">Coming Soon - Live sessions and collaboration</p></div>} />
+                  <Route path="/classroom" element={<Classroom />} />
                   <Route path="/content-generator" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">AI Content Generator</h2><p className="text-gray-600 mt-2">Coming Soon - Create lessons and quizzes with AI</p></div>} />
                   <Route path="/analytics" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2><p className="text-gray-600 mt-2">Coming Soon - Detailed performance insights</p></div>} />
                   <Route path="/profile" element={<Profile />} />
