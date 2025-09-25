@@ -1,17 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Trophy,
-  Star,
-  Award,
-  Target,
-  Zap,
-  Crown,
-  Medal,
-  Gift,
-  Lock,
-  CheckCircle
-} from 'lucide-react';
+import { Trophy, Star, Award, Target, Zap, Crown, Medal, Gift, Lock, CircleCheck as CheckCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useGamification } from '../../hooks/useGamification';
 import { Achievement, StudentAchievement } from '../../types';

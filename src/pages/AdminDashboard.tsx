@@ -1,19 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Users,
-  BookOpen,
-  GraduationCap,
-  TrendingUp,
-  Activity,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  BarChart3,
-  Settings,
-  Shield,
-  Database
-} from 'lucide-react';
+import { Users, BookOpen, GraduationCap, TrendingUp, Activity, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle, Clock, ChartBar as BarChart3, Settings, Shield, Database } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import { SystemMetrics, User } from '../types';

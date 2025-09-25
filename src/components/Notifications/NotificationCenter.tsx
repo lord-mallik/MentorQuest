@@ -1,19 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Bell,
-  X,
-  CheckCircle,
-  AlertTriangle,
-  Info,
-  Award,
-  MessageSquare,
-  Calendar,
-  BookOpen,
-  Users,
-  Trash2,
-  MarkAsUnread
-} from 'lucide-react';
+import { Bell, X, CircleCheck as CheckCircle, TriangleAlert as AlertTriangle, Info, Award, MessageSquare, Calendar, BookOpen, Users, Trash2, SquaresUnite as MarkAsUnread } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { db } from '../../lib/supabase';
 import { Notification } from '../../types';
