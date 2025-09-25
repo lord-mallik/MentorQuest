@@ -171,6 +171,12 @@ export function useAuthProvider() {
             } catch (teacherError) {
               console.error('Error creating teacher profile:', teacherError);
             }
+          } else if (role === 'admin') {
+            try {
+              await db.createAdminProfile(data.user.id);
+            } catch (adminError) {
+              console.error('Error creating admin profile:', adminError);
+            }
           }
         } catch (profileCreationError) {
           console.error('Error in profile creation:', profileCreationError);

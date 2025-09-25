@@ -67,11 +67,13 @@ function AppContent() {
                 <>
                   <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/ai-tutor" element={<AITutor />} />
                   <Route path="/quizzes" element={<Quizzes />} />
                   <Route path="/progress" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Progress Tracking</h2><p className="text-gray-600 mt-2">Coming Soon - Advanced analytics and progress visualization</p></div>} />
                   <Route path="/wellness" element={<Wellness />} />
                   <Route path="/leaderboard" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Leaderboard</h2><p className="text-gray-600 mt-2">Coming Soon - Compete with classmates and friends</p></div>} />
+                  <Route path="/achievements" element={<AchievementSystem />} />
                   <Route path="/classroom" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Virtual Classroom</h2><p className="text-gray-600 mt-2">Coming Soon - Live sessions and collaboration</p></div>} />
                   <Route path="/content-generator" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">AI Content Generator</h2><p className="text-gray-600 mt-2">Coming Soon - Create lessons and quizzes with AI</p></div>} />
                   <Route path="/analytics" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2><p className="text-gray-600 mt-2">Coming Soon - Detailed performance insights</p></div>} />

@@ -133,6 +133,15 @@ const Navbar: React.FC = () => {
                 </div>
               )}
               
+              {/* Notifications */}
+              <button
+                onClick={() => setShowNotifications(true)}
+                className="relative p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <Bell className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+              </button>
+
               {/* XP and Level (Students only) */}
               {supabaseUser?.user_metadata?.role === 'student' && profile && (
                 <motion.div 
@@ -316,6 +325,12 @@ const Navbar: React.FC = () => {
 
       {/* Spacer for fixed navbar */}
       <div className="h-16"></div>
+
+      {/* Notification Center */}
+      <NotificationCenter 
+        isOpen={showNotifications} 
+        onClose={() => setShowNotifications(false)} 
+      />
     </>
   );
 };

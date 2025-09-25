@@ -43,6 +43,7 @@ const resources = {
       role: 'Role',
       student: 'Student',
       teacher: 'Teacher',
+      admin: 'Admin',
       
       // Dashboard
       welcomeBack: 'Welcome back',

@@ -9,6 +9,25 @@ export interface User {
   preferences: UserPreferences;
 }
 
+export interface AdminProfile {
+  id: string;
+  user_id: string;
+  permissions: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SystemMetrics {
+  total_users: number;
+  total_students: number;
+  total_teachers: number;
+  total_courses: number;
+  total_quizzes: number;
+  active_sessions: number;
+  completion_rate: number;
+  engagement_score: number;
+}
+
 export interface UserPreferences {
   language: string;
   theme: 'light' | 'dark' | 'auto';

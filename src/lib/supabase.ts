@@ -567,6 +567,69 @@ export const db = {
       console.error('Error fetching student achievements:', error);
       return [];
     }
+  },
+
+  // Admin operations
+  async getSystemMetrics() {
+    try {
+      const { data, error } = await (supabase as any)
+        .rpc('get_system_metrics');
+      
+      if (error) throw error;
+      return data;
+    } catch (error: unknown) {
+      console.error('Error fetching system metrics:', error);
+      return {
+        total_users: 0,
+        total_students: 0,
+        total_teachers: 0,
+        total_courses: 0,
+        total_quizzes: 0,
+        active_sessions: 0,
+        completion_rate: 0,
+        engagement_score: 0
+      };
+    }
+  },
+
+  async createAdminProfile(userId: string) {
+    try {
+      const { data, error } = await (supabase as any)
+        .rpc('create_admin_profile', {
+          admin_user_id: userId
+        });
+      
+      if (error) throw error;
+      return data;
+    } catch (error: unknown) {
+      console.error('Error creating admin profile:', error);
+      throw new Error('Failed to create admin profile');
+    }
+  },
+
+  async sendNotification(
+    userId: string,
+    title: string,
+    message: string,
+    type: 'info' | 'success' | 'warning' | 'error' | 'achievement' = 'info',
+    actionUrl?: string
+  ) {
+    try {
+      const { data, error } = await (supabase as any)
+        .rpc('send_notification', {
+          target_user_id: userId,
+          notification_title: title,
+          notification_message: message,
+          notification_type: type,
+          action_url: actionUrl
+        });
+      
+      if (error) throw error;
+      return data;
+    } catch (error: unknown) {
+      console.error('Error sending notification:', error);
+      throw new Error('Failed to send notification');
+    }
   }
 };
 

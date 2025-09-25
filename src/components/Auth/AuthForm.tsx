@@ -211,6 +211,7 @@ const AuthForm: React.FC = () => {
                   >
                     <option value="student">{t('student')}</option>
                     <option value="teacher">{t('teacher')}</option>
+                    <option value="admin">Admin</option>
                   </select>
                 </div>
               </div>
