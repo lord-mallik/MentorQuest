@@ -149,6 +149,21 @@ export interface QuizAttempt {
   xp_earned: number;
 }
 
+export interface QuizResult {
+  id: string;
+  quiz_id: string;
+  student_id: string;
+  title: string;
+  subject: string;
+  answers: Record<string, string>;
+  score: number;
+  max_score: number;
+  percentage: number;
+  completed_at: string;
+  time_taken: number;
+  xp_earned: number;
+}
+
 export interface Achievement {
   id: string;
   name: string;

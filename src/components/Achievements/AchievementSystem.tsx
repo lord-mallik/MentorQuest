@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Star, Award, Target, Zap, Crown, Medal, Gift, Lock, CircleCheck as CheckCircle } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { Trophy, Star, Award, Target, Zap, Crown, Medal, Lock, CircleCheck as CheckCircle } from 'lucide-react';
 import { useGamification } from '../../hooks/useGamification';
-import { Achievement, StudentAchievement } from '../../types';
+import { Achievement } from '../../types';
 import { toast } from 'sonner';
 
 interface AchievementSystemProps {
@@ -11,11 +10,7 @@ interface AchievementSystemProps {
   onClose?: () => void;
 }
 
-const AchievementSystem: React.FC<AchievementSystemProps> = ({ 
-  showModal = false, 
-  onClose 
-}) => {
-  const { supabaseUser } = useAuth();
+const AchievementSystem: React.FC<AchievementSystemProps> = () => {
   const { achievements, unlockedAchievements, loading } = useGamification();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [newlyUnlocked, setNewlyUnlocked] = useState<Achievement[]>([]);
@@ -54,17 +49,17 @@ const AchievementSystem: React.FC<AchievementSystemProps> = ({
   }, [unlockedAchievements]);
 
   const getUnlockedDate = useCallback((achievementId: string) => {
-    const unlocked = unlockedAchievements.find(ua => 
+    const unlocked = unlockedAchievements.find(ua =>
       (ua as any).achievement_id === achievementId || ua.id === achievementId
     );
-    return unlocked ? (unlocked as any).unlocked_at || unlocked.created_at : null;
+    return unlocked ? (unlocked as any).unlocked_at : null;
   }, [unlockedAchievements]);
 
   // Check for newly unlocked achievements
   useEffect(() => {
     const checkNewAchievements = () => {
       const recentlyUnlocked = unlockedAchievements.filter(ua => {
-        const unlockedDate = (ua as any).unlocked_at || ua.created_at;
+        const unlockedDate = (ua as any).unlocked_at;
         const timeDiff = Date.now() - new Date(unlockedDate).getTime();
         return timeDiff < 5000; // Within last 5 seconds
       });

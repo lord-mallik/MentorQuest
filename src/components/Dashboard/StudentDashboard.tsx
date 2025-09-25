@@ -24,8 +24,6 @@ const StudentDashboard: React.FC = () => {
   const { t } = useTranslation();
   const { supabaseUser } = useAuth();
 
-  console.log(supabaseUser)
-
   const { profile, dailyQuests, loading: gamificationLoading, completeQuest, updateStreak } = useGamification();
   const [recentActivity, setRecentActivity] = useState<Array<{
     id: number;
@@ -169,7 +167,7 @@ console.log(loading, profile)
               transition={{ delay: 0.2 }}
               className="heading-lg mb-3"
             >
-              {t('welcomeBack')}, {supabaseUser?.user_metadata?.full_name}! 👋
+              {t('welcomeBack')}, {supabaseUser?.user_metadata?.full_name || 'Student'}! 👋
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, x: -20 }}

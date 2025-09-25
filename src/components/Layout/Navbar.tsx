@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Hop as Home, Brain, BookOpen, TrendingUp, Heart, User, Settings, Users, Menu, X, LogOut, CircleAlert as AlertCircle, Trophy } from 'lucide-react';
+import { Hop as Home, Brain, BookOpen, TrendingUp, Heart, User, Settings, Users, Menu, X, LogOut, CircleAlert as AlertCircle, Trophy, Bell } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'sonner';
 import { useGamification } from '../../hooks/useGamification';
