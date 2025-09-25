@@ -6,19 +6,19 @@ import {
   BookOpen,
   TrendingUp,
   Clock,
-  Brain,
-  Award,
   AlertCircle,
   Calendar,
-  BarChart3,
-  PlusCircle,
-  MessageSquare,
-  Heart
+  PlusCircle
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { db } from '../../lib/supabase';
 import { ClassRoom, LiveSession } from '../../types';
 import LoadingSpinner from '../common/LoadingSpinner';
+import TeacherWelcomeHeader from './TeacherWelcomeHeader';
+import StatsCard from './StatsCard';
+import ClassCard from './ClassCard';
+import PerformanceSection from './PerformanceSection';
+import QuickToolsGrid from './QuickToolsGrid';
 
 interface AnalyticsData {
   totalStudents: number;
@@ -65,7 +65,10 @@ const TeacherDashboard: React.FC = () => {
       const classesData = await db.getClasses(supabaseUser!.id);
       setClasses(classesData.map((cls) => ({
         ...cls,
-        students: cls.class_students?.map((cs) => cs.users?.id || '').filter(Boolean) || []
+        students: cls.class_students?.map((cs) => cs.users?.id || '').filter(Boolean) || [],
+        class_students: cls.class_students?.map((cs) => ({
+          users: cs.users as any // Cast to any to avoid type issues with partial user data
+        })) || []
       })));
 
       setLiveSessions([
@@ -157,96 +160,45 @@ const TeacherDashboard: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl p-8 text-white"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
-              Welcome back, {supabaseUser?.user_metadata?.full_name || supabaseUser?.email}! 👨‍🏫
-            </h1>
-            <p className="text-primary-100 text-lg">
-              Ready to inspire and educate your students today?
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold">{analytics.totalStudents}</div>
-            <div className="text-primary-200">Total Students</div>
-          </div>
-        </div>
-      </motion.div>
+      <TeacherWelcomeHeader 
+        supabaseUser={supabaseUser!} 
+        totalStudents={analytics.totalStudents} 
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="card p-6"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Active Classes</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics.activeClasses}</p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="card p-6"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Avg Engagement</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics.averageEngagement}%</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="card p-6"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Completion Rate</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics.completionRate}%</p>
-            </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Award className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="card p-6"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Wellness Alerts</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics.wellnessAlerts}</p>
-            </div>
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-              <AlertCircle className="w-6 h-6 text-red-600" />
-            </div>
-          </div>
-        </motion.div>
+        <StatsCard
+          title="Active Classes"
+          value={analytics.activeClasses}
+          icon={Users}
+          iconColor="text-blue-600"
+          iconBgColor="bg-blue-100"
+          delay={0.1}
+        />
+        <StatsCard
+          title="Avg Engagement"
+          value={`${analytics.averageEngagement}%`}
+          icon={TrendingUp}
+          iconColor="text-green-600"
+          iconBgColor="bg-green-100"
+          delay={0.2}
+        />
+        <StatsCard
+          title="Completion Rate"
+          value={`${analytics.completionRate}%`}
+          icon={BookOpen}
+          iconColor="text-purple-600"
+          iconBgColor="bg-purple-100"
+          delay={0.3}
+        />
+        <StatsCard
+          title="Wellness Alerts"
+          value={analytics.wellnessAlerts}
+          icon={AlertCircle}
+          iconColor="text-red-600"
+          iconBgColor="bg-red-100"
+          delay={0.4}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -268,17 +220,7 @@ const TeacherDashboard: React.FC = () => {
             
             <div className="space-y-4">
               {classes.map((classRoom) => (
-                <div key={classRoom.id} className="p-4 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-gray-900">{classRoom.name}</h4>
-                    <span className="text-sm text-gray-600">{classRoom.students.length} students</span>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3">{classRoom.subject}</p>
-                  <div className="flex items-center space-x-2">
-                    <Link to="/classroom" className="btn-outline text-xs px-2 py-1">View</Link>
-                    <Link to="/classroom" className="btn-primary text-xs px-2 py-1">Start Live Session</Link>
-                  </div>
-                </div>
+                <ClassCard key={classRoom.id} classRoom={classRoom} />
               ))}
               {classes.length === 0 && (
                 <div className="text-center py-8">
@@ -300,64 +242,10 @@ const TeacherDashboard: React.FC = () => {
           transition={{ delay: 0.6 }}
           className="lg:col-span-1"
         >
-          <div className="card p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Student Performance</h3>
-              <BarChart3 className="w-5 h-5 text-primary-600" />
-            </div>
-            
-            <div className="space-y-6">
-              {/* Top Performers */}
-              {analytics.topPerformers?.length > 0 && (
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-3">Top Performers</h4>
-                  <div className="space-y-2">
-                    {analytics.topPerformers.map((student, index: number) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
-                        <div>
-                          <p className="font-medium text-gray-900">{student.name}</p>
-                          <p className="text-sm text-gray-600">{student.subject}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-green-600">{student.score}%</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Students Needing Help */}
-              {analytics.strugglingStudents?.length > 0 && (
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-3">Need Attention</h4>
-                  <div className="space-y-2">
-                    {analytics.strugglingStudents.map((student, index: number) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-yellow-50 rounded-lg">
-                        <div>
-                          <p className="font-medium text-gray-900">{student.name}</p>
-                          <p className="text-sm text-gray-600">{student.subject}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-yellow-600">{student.score}%</p>
-                          <button className="text-xs text-primary-600 hover:text-primary-700">
-                            Send Message
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {(!analytics.topPerformers?.length && !analytics.strugglingStudents?.length) && (
-                <div className="text-center py-8">
-                  <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No student data available yet</p>
-                </div>
-              )}
-            </div>
-          </div>
+          <PerformanceSection 
+            topPerformers={analytics.topPerformers}
+            strugglingStudents={analytics.strugglingStudents}
+          />
         </motion.div>
 
         {/* Upcoming Sessions & Tools */}
@@ -393,27 +281,7 @@ const TeacherDashboard: React.FC = () => {
             </div>
 
             {/* Quick Tools */}
-            <div className="border-t pt-6">
-              <h4 className="font-medium text-gray-900 mb-4">Quick Tools</h4>
-              <div className="grid grid-cols-2 gap-3">
-                <Link to="/content-generator" className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
-                  <Brain className="w-6 h-6 text-primary-600 mx-auto mb-1" />
-                  <span className="text-xs font-medium">AI Content</span>
-                </Link>
-                <Link to="/quizzes" className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
-                  <BookOpen className="w-6 h-6 text-green-600 mx-auto mb-1" />
-                  <span className="text-xs font-medium">Create Quiz</span>
-                </Link>
-                <button className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
-                  <MessageSquare className="w-6 h-6 text-blue-600 mx-auto mb-1" />
-                  <span className="text-xs font-medium">Announcements</span>
-                </button>
-                <Link to="/analytics" className="p-3 border border-gray-200 rounded-lg hover:border-primary-200 transition-colors text-center">
-                  <Heart className="w-6 h-6 text-pink-600 mx-auto mb-1" />
-                  <span className="text-xs font-medium">Analytics</span>
-                </Link>
-              </div>
-            </div>
+            <QuickToolsGrid />
           </div>
         </motion.div>
       </div>

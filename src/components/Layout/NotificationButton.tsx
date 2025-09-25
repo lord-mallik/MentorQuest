@@ -24,7 +24,9 @@ const NotificationButton: React.FC<NotificationButtonProps> = ({
       <Bell className="w-5 h-5" />
       {hasUnread && (
         <div className="absolute -top-1 -right-1">
-          <Badge variant="error" size="sm" dot />
+          <Badge variant="error" size="sm" dot>
+            {unreadCount > 0 ? unreadCount : null}
+          </Badge>
         </div>
       )}
     </motion.button>

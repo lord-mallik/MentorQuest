@@ -238,12 +238,12 @@ const ContentGenerator: React.FC = () => {
               </div>
 
               <div className="prose max-w-none">
-                {formData.contentType === 'lesson' && generatedContent && 'title' in generatedContent && (
+                {formData.contentType === 'lesson' && generatedContent && 'lessons' in generatedContent && (
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">{generatedContent.title}</h3>
-                    <p className="text-gray-600 mb-4">Objectives: {generatedContent.objectives?.join(', ')}</p>
+                    <h3 className="text-xl font-semibold mb-2">{(generatedContent as LessonPlan).title}</h3>
+                    <p className="text-gray-600 mb-4">Objectives: {(generatedContent as LessonPlan).objectives?.join(', ')}</p>
                     <div className="space-y-4">
-                      {generatedContent.lessons?.map((lesson) => (
+                      {(generatedContent as LessonPlan).lessons?.map((lesson) => (
                         <div key={lesson.id} className="border-l-4 border-primary-500 pl-4">
                           <h4 className="font-semibold">{lesson.title}</h4>
                           <p className="text-sm text-gray-600">Duration: {lesson.duration} minutes</p>
@@ -258,7 +258,7 @@ const ContentGenerator: React.FC = () => {
                     <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                       <h4 className="font-semibold mb-2">Materials Needed:</h4>
                       <ul className="list-disc list-inside">
-                        {generatedContent.materials?.map((material, idx) => (
+                        {(generatedContent as LessonPlan).materials?.map((material, idx) => (
                           <li key={idx}>{material}</li>
                         ))}
                       </ul>

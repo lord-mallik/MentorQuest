@@ -1,30 +1,48 @@
 import React from 'react';
+import { Users, TrendingUp } from 'lucide-react';
 import Navbar from './components/Layout/Navbar';
-import ProfileSection from './components/Layout/ProfileSection';
-import XPDisplay from './components/Layout/XPDisplay';
-import LanguageSelector from './components/Layout/LanguageSelector';
-import NotificationButton from './components/Layout/NotificationButton';
-import MobileMenu from './components/Layout/MobileMenu';
 import NotificationCenter from './components/Notifications/NotificationCenter';
+import TeacherWelcomeHeader from './components/Dashboard/TeacherWelcomeHeader';
+import StatsCard from './components/Dashboard/StatsCard';
+import ClassCard from './components/Dashboard/ClassCard';
+import PerformanceSection from './components/Dashboard/PerformanceSection';
+import QuickToolsGrid from './components/Dashboard/QuickToolsGrid';
 
 // Mock data for preview
-const mockUser = {
+const mockTeacherUser = {
+  id: 'mock-teacher',
   user_metadata: {
-    full_name: 'John Doe',
-    role: 'student'
+    full_name: 'Dr. Sarah Wilson',
+    role: 'teacher'
   },
-  email: 'john.doe@example.com'
+  email: 'sarah.wilson@school.edu',
+  app_metadata: {},
+  aud: 'authenticated',
+  created_at: new Date().toISOString()
+} as any;
+
+const mockClassRoom = {
+  id: '1',
+  name: 'Advanced Mathematics',
+  subject: 'Mathematics',
+  teacher_id: 'teacher1',
+  students: ['student1', 'student2', 'student3'],
+  description: 'Advanced mathematics for grade 10 students',
+  class_code: 'MATH10-001',
+  active: true,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  class_students: []
 };
 
-const mockProfile = {
-  level: 5,
-  xp: 1250
-};
+const mockTopPerformers = [
+  { name: 'Alice Johnson', score: 95, subject: 'Mathematics' },
+  { name: 'Bob Smith', score: 92, subject: 'Physics' },
+];
 
-const mockNavItems = [
-  { path: '/dashboard', icon: () => <div>🏠</div>, label: 'Dashboard' },
-  { path: '/ai-tutor', icon: () => <div>🧠</div>, label: 'AI Tutor' },
-  { path: '/quizzes', icon: () => <div>📚</div>, label: 'Quizzes' },
+const mockStrugglingStudents = [
+  { name: 'David Wilson', subject: 'Mathematics', score: 65 },
+  { name: 'Eva Brown', subject: 'Physics', score: 68 }
 ];
 
 const App: React.FC = () => {
@@ -40,102 +58,87 @@ const App: React.FC = () => {
       {/* Component Showcase */}
       <div className="container mx-auto px-4 py-8 space-y-8">
         <div className="text-center mb-12">
-          <h1 className="heading-lg text-gradient-primary mb-4">Enhanced Navbar Components</h1>
-          <p className="body-lg text-neutral-600">Modular, reusable navbar components with improved design</p>
+          <h1 className="heading-lg text-gradient-primary mb-4">Enhanced Dashboard Components</h1>
+          <p className="body-lg text-neutral-600">Fixed TypeScript errors and modular dashboard components</p>
         </div>
 
-        {/* Profile Section Demo */}
+        {/* Teacher Welcome Header Demo */}
         <div className="card p-6">
-          <h2 className="heading-sm mb-4">Profile Section</h2>
-          <div className="flex justify-center">
-            <ProfileSection 
-              user={mockUser} 
-              onSignOut={() => console.log('Sign out clicked')} 
+          <h2 className="heading-sm mb-4">Teacher Welcome Header</h2>
+          <TeacherWelcomeHeader 
+            supabaseUser={mockTeacherUser} 
+            totalStudents={45} 
+          />
+        </div>
+
+        {/* Stats Card Demo */}
+        <div className="card p-6">
+          <h2 className="heading-sm mb-4">Stats Cards</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatsCard
+              title="Active Classes"
+              value={8}
+              icon={Users}
+              iconColor="text-blue-600"
+              iconBgColor="bg-blue-100"
+            />
+            <StatsCard
+              title="Avg Engagement"
+              value="87%"
+              icon={TrendingUp}
+              iconColor="text-green-600"
+              iconBgColor="bg-green-100"
             />
           </div>
         </div>
 
-        {/* XP Display Demo */}
+        {/* Class Card Demo */}
         <div className="card p-6">
-          <h2 className="heading-sm mb-4">XP Display</h2>
-          <div className="flex justify-center space-x-8">
-            <div>
-              <h3 className="label-base mb-2">Desktop Version</h3>
-              <XPDisplay profile={mockProfile} />
-            </div>
-            <div>
-              <h3 className="label-base mb-2">Mobile Version</h3>
-              <XPDisplay profile={mockProfile} isMobile />
-            </div>
+          <h2 className="heading-sm mb-4">Class Card</h2>
+          <div className="max-w-sm">
+            <ClassCard classRoom={mockClassRoom} />
           </div>
         </div>
 
-        {/* Language Selector Demo */}
+        {/* Performance Section Demo */}
         <div className="card p-6">
-          <h2 className="heading-sm mb-4">Language Selector</h2>
-          <div className="flex justify-center space-x-8">
-            <div>
-              <h3 className="label-base mb-2">Desktop Version</h3>
-              <LanguageSelector />
-            </div>
-            <div>
-              <h3 className="label-base mb-2">Mobile Version</h3>
-              <LanguageSelector isMobile />
-            </div>
-          </div>
-        </div>
-
-        {/* Notification Button Demo */}
-        <div className="card p-6">
-          <h2 className="heading-sm mb-4">Notification Button</h2>
-          <div className="flex justify-center space-x-4">
-            <NotificationButton 
-              onClick={() => setShowNotifications(true)}
-              hasUnread={true}
-            />
-            <NotificationButton 
-              onClick={() => console.log('No notifications')}
-              hasUnread={false}
+          <h2 className="heading-sm mb-4">Performance Section</h2>
+          <div className="max-w-md">
+            <PerformanceSection 
+              topPerformers={mockTopPerformers}
+              strugglingStudents={mockStrugglingStudents}
             />
           </div>
         </div>
 
-        {/* Mobile Menu Demo */}
+        {/* Quick Tools Grid Demo */}
         <div className="card p-6">
-          <h2 className="heading-sm mb-4">Mobile Menu (Always Open for Demo)</h2>
-          <div className="max-w-sm mx-auto border rounded-lg overflow-hidden">
-            <MobileMenu
-              isOpen={true}
-              navItems={mockNavItems}
-              isActive={(path) => path === '/dashboard'}
-              onItemClick={() => console.log('Menu item clicked')}
-              onSignOut={() => console.log('Sign out from mobile')}
-            />
+          <h2 className="heading-sm mb-4">Quick Tools Grid</h2>
+          <div className="max-w-xs">
+            <QuickToolsGrid />
           </div>
         </div>
 
-        {/* Features List */}
+        {/* Fixes Applied */}
         <div className="card p-6">
-          <h2 className="heading-sm mb-4">✨ Enhancements Made</h2>
+          <h2 className="heading-sm mb-4">🔧 Fixes Applied</h2>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <h3 className="label-base text-primary-700">🗂️ Code Organization</h3>
+              <h3 className="label-base text-primary-700">🐛 TypeScript Fixes</h3>
               <ul className="body-sm text-neutral-600 space-y-1">
-                <li>• Extracted ProfileSection component</li>
-                <li>• Created XPDisplay component</li>
-                <li>• Separated LanguageSelector</li>
-                <li>• Built NotificationButton component</li>
-                <li>• Modular MobileMenu component</li>
+                <li>• Fixed ClassRoom type compatibility</li>
+                <li>• Added proper User interface mapping</li>
+                <li>• Resolved class_students type mismatch</li>
+                <li>• Added missing preferences property</li>
               </ul>
             </div>
             <div className="space-y-2">
               <h3 className="label-base text-accent-700">🎨 UI Improvements</h3>
               <ul className="body-sm text-neutral-600 space-y-1">
-                <li>• Removed settings icon as requested</li>
-                <li>• Fixed notification panel positioning</li>
-                <li>• Enhanced hover animations</li>
-                <li>• Improved mobile responsiveness</li>
-                <li>• Better visual hierarchy</li>
+                <li>• Matched name color from StudentDashboard</li>
+                <li>• Created modular components</li>
+                <li>• Improved code organization</li>
+                <li>• Enhanced reusability</li>
               </ul>
             </div>
           </div>
